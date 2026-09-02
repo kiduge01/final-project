@@ -1,0 +1,6 @@
+member_code,first_name,last_name,amount,date,week,notes
+MEM001,John,Doe,50000,2026-06-01,1,Regular contribution
+MEM002,Jane,Smith,75000,2026-06-08,2,Development fund
+MEM003,Peter,Johnson,100000,2026-06-15,3,Tithe offering
+MEM004,Mary,Williams,25000,2026-06-22,4,Special gift
+MEM005,Samuel,Brown,60000,2026-06-01,1,Monthly pledge

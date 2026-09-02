@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    # Disable rewriting in department folder
+    # All files and folders should be served directly
+    RewriteEngine Off
+</IfModule>
+
+# Ensure all requests are served directly, not through any router
+<IfModule mod_php.c>
+    php_flag short_open_tag On
+</IfModule>

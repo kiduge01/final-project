@@ -1,0 +1,270 @@
+/* Kanisa CMS - Product UI polish (used alongside TailwindCSS CDN) */
+
+:root {
+    --cms-ink: #0f172a;
+    --cms-muted: #64748b;
+    --cms-border: #e2e8f0;
+    --cms-surface: #ffffff;
+    --cms-page: #f8fafc;
+    --cms-primary: #0f766e;
+    --cms-primary-strong: #115e59;
+    --cms-gold: #f59e0b;
+    --cms-danger: #e11d48;
+}
+
+/* Smooth scroll */
+html { scroll-behavior: smooth; }
+
+body {
+    background:
+        linear-gradient(180deg, rgba(248,250,252,0.98), rgba(241,245,249,0.92));
+    color: var(--cms-ink);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Focus ring reset for Tailwind */
+*:focus { outline: none; }
+*:focus-visible {
+    outline: 3px solid rgba(20, 184, 166, .24);
+    outline-offset: 2px;
+}
+
+/* The project uses many Tailwind CDN utility classes. These overrides make
+   older screens inherit the redesigned product language without rewriting
+   every page template at once. */
+.rounded-2xl,
+.rounded-xl {
+    border-radius: .5rem !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 1px 8px rgba(15, 23, 42, .03) !important;
+}
+
+.shadow-md,
+.shadow-lg,
+.shadow-xl,
+.shadow-2xl {
+    box-shadow: 0 18px 50px rgba(15, 23, 42, .14) !important;
+}
+
+.bg-white {
+    background-color: var(--cms-surface) !important;
+}
+
+.border-mist-100,
+.border-mist-200,
+.border-gray-100,
+.border-gray-200,
+.border-gray-300 {
+    border-color: var(--cms-border) !important;
+}
+
+.text-royal-900,
+.text-royal-800,
+.text-gray-900,
+.text-gray-800 {
+    color: var(--cms-ink) !important;
+}
+
+.text-mist-600,
+.text-mist-500,
+.text-gray-600,
+.text-gray-500 {
+    color: var(--cms-muted) !important;
+}
+
+.bg-royal-600,
+.hover\:bg-royal-700:hover,
+.bg-primary-600,
+.hover\:bg-primary-700:hover {
+    background-color: var(--cms-primary) !important;
+}
+
+.text-royal-600,
+.text-royal-700,
+.text-primary-600 {
+    color: var(--cms-primary) !important;
+}
+
+.border-royal-600,
+.border-primary-600 {
+    border-color: var(--cms-primary) !important;
+}
+
+.bg-royal-50,
+.bg-primary-50 {
+    background-color: #f0fdfa !important;
+}
+
+main h1,
+main h2,
+main h3 {
+    letter-spacing: -0.01em;
+}
+
+main h1.text-3xl,
+main .text-3xl {
+    font-size: 1.65rem !important;
+    line-height: 2rem !important;
+}
+
+main h2.text-2xl,
+main .text-2xl {
+    font-size: 1.35rem !important;
+    line-height: 1.8rem !important;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+
+input,
+select,
+textarea {
+    border-color: var(--cms-border) !important;
+    background-color: #fff !important;
+    color: var(--cms-ink) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: rgba(15, 118, 110, .65) !important;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, .12) !important;
+}
+
+label {
+    color: #475569;
+}
+
+/* Operational cards */
+main .bg-white.rounded-2xl,
+main .bg-white.rounded-xl,
+main .bg-white.rounded-lg,
+main .rounded-2xl.border,
+main .rounded-xl.border {
+    border-color: var(--cms-border) !important;
+}
+
+main .bg-white.rounded-2xl,
+main .bg-white.rounded-xl,
+main .bg-white.rounded-lg {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+/* Tables */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+thead {
+    background: #f8fafc !important;
+}
+
+thead th {
+    color: #64748b !important;
+    font-size: .72rem !important;
+    letter-spacing: .04em !important;
+    font-weight: 700 !important;
+}
+
+tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+
+tbody td {
+    vertical-align: middle;
+}
+
+/* Table row hover transition */
+tbody tr { transition: background-color 0.15s ease; }
+
+/* Tabs as a quiet segmented workspace control */
+.fin-tab,
+.ptab,
+.tab-btn {
+    border-radius: .5rem !important;
+}
+
+.fin-tab-active,
+.ptab-active,
+.tab-btn.bg-royal-600 {
+    background: #ccfbf1 !important;
+    color: #115e59 !important;
+    border-color: transparent !important;
+}
+
+#fin-tabs,
+.procurement-module nav {
+    gap: .375rem;
+}
+
+/* Badges */
+[class*="rounded-full"].text-xs,
+[class*="rounded"].text-xs {
+    font-weight: 700;
+}
+
+/* Modals */
+.fixed.inset-0 .bg-white {
+    border: 1px solid var(--cms-border);
+}
+
+.modal-enter { animation: modalIn 0.2s ease-out; }
+
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Sidebar transition on mobile */
+#sidebar { transition: transform 0.2s ease-in-out; }
+
+/* Compact desktop operational density */
+@media (min-width: 1024px) {
+    main {
+        min-height: calc(100vh - 72px);
+    }
+
+    .max-w-7xl {
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 640px) {
+    main {
+        padding: 1rem !important;
+    }
+
+    main h1.text-3xl,
+    main .text-3xl {
+        font-size: 1.35rem !important;
+        line-height: 1.75rem !important;
+    }
+
+    table {
+        min-width: 760px;
+    }
+}
+
+/* Print styles */
+@media print {
+    aside, header, footer, button { display: none !important; }
+    main { margin: 0 !important; padding: 0 !important; }
+    .lg\:ml-64 { margin-left: 0 !important; }
+}

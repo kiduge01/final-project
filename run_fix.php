@@ -1,0 +1,16 @@
+<?php
+$sql = <<<'SQL'
+FLUSH PRIVILEGES;
+DELETE FROM mysql.user WHERE User='root';
+CREATE USER 'root'@'localhost' IDENTIFIED BY '';
+CREATE USER 'root'@'127.0.0.1' IDENTIFIED BY '';
+CREATE USER 'root'@'::1' IDENTIFIED BY '';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'::1' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+SQL;
+
+echo "Attempting to fix MySQL root user...\n";
+echo $sql;
+?>
