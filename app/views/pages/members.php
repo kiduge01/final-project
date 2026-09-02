@@ -84,7 +84,6 @@
                     <th class="px-4 py-3 text-left text-xs uppercase tracking-wider text-mist-500">Phone</th>
                     <th class="px-4 py-3 text-left text-xs uppercase tracking-wider text-mist-500">Email</th>
                     <th class="px-4 py-3 text-left text-xs uppercase tracking-wider text-mist-500">Gender</th>
-                    <th class="px-4 py-3 text-left text-xs uppercase tracking-wider text-mist-500">Zone</th>
                     <th class="px-4 py-3 text-left text-xs uppercase tracking-wider text-mist-500">Status</th>
                     <th class="px-4 py-3 text-left text-xs uppercase tracking-wider text-mist-500">Joined</th>
                     <th class="px-4 py-3"></th>
@@ -196,7 +195,6 @@
             </div>
             <form id="member-form" class="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="hidden" id="edit-member-id" value="">
-                <!-- Row 1 -->
                 <div>
                     <label class="block text-xs font-semibold text-mist-600 mb-1">First Name <span class="text-red-500">*</span></label>
                     <input name="first_name" required placeholder="First name" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
@@ -205,7 +203,18 @@
                     <label class="block text-xs font-semibold text-mist-600 mb-1">Last Name <span class="text-red-500">*</span></label>
                     <input name="last_name" required placeholder="Last name / Surname" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
                 </div>
-                <!-- Row 2 -->
+                <div>
+                    <label class="block text-xs font-semibold text-mist-600 mb-1">Location</label>
+                    <input name="physical_address" placeholder="Area / Location" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-mist-600 mb-1">Joined Date</label>
+                    <input type="date" name="join_date" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-mist-600 mb-1">Member Code <span class="text-mist-400 font-normal">(auto if blank)</span></label>
+                    <input name="member_code" placeholder="MBR-2026-0001" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm font-mono">
+                </div>
                 <div>
                     <label class="block text-xs font-semibold text-mist-600 mb-1">Gender <span class="text-red-500">*</span></label>
                     <select name="gender" required class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
@@ -215,29 +224,6 @@
                         <option value="other">Other</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Phone <span class="text-red-500">*</span></label>
-                    <input name="phone" required placeholder="+255 7XX XXX XXX" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <!-- Row 3 -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Email</label>
-                    <input type="email" name="email" placeholder="email@example.com" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Member Code <span class="text-mist-400 font-normal">(auto if blank)</span></label>
-                    <input name="member_code" placeholder="MBR-2026-0001" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm font-mono">
-                </div>
-                <!-- Row 4 -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Date of Birth</label>
-                    <input type="date" name="date_of_birth" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Join Date</label>
-                    <input type="date" name="join_date" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <!-- Row 5 -->
                 <div>
                     <label class="block text-xs font-semibold text-mist-600 mb-1">Marital Status</label>
                     <select name="marital_status" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
@@ -249,130 +235,13 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Baptism Date</label>
-                    <input type="date" name="baptism_date" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+                    <label class="block text-xs font-semibold text-mist-600 mb-1">Phone <span class="text-red-500">*</span></label>
+                    <input name="phone" required placeholder="+255 7XX XXX XXX" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
                 </div>
-                <!-- Row 6 -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Ward / Mtaa</label>
-                    <input name="ward" placeholder="Mtaa / Ward" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">District / Wilaya</label>
-                    <input name="district" placeholder="District" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <!-- Row 7 -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">City / Village (Mji/Kijiji)</label>
-                    <input name="city_village" placeholder="Ubungo, Kinondoni..." class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Country (Nchi)</label>
-                    <input name="country" placeholder="Tanzania" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm" value="Tanzania">
-                </div>
-                <!-- Row 8 -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Region / Mkoa</label>
-                    <input name="region" placeholder="Region" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Zone <span class="text-mist-400 font-normal">(Optional)</span></label>
-                    <select name="zone_id" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                        <option value="">-- Select Zone --</option>
-                    </select>
-                </div>
-                <!-- Row 8b -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Status</label>
-                    <select name="member_status" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="transferred">Transferred</option>
-                        <option value="deceased">Deceased</option>
-                    </select>
-                </div>
-                <!-- Row 9 - Education & Job -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Education Level (Kiwango cha Elimu)</label>
-                    <select name="education_level" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                        <option value="">Select</option>
-                        <option value="primary">Primary School</option>
-                        <option value="secondary">Secondary School</option>
-                        <option value="diploma">Diploma</option>
-                        <option value="bachelor">Bachelor's Degree</option>
-                        <option value="masters">Master's Degree</option>
-                        <option value="phd">PhD / Doctorate</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Job Title (Cheo Kazi)</label>
-                    <input name="job_title" placeholder="Position / Majukumu Kazini" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <!-- Row 10 - Emergency Contact Details -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Emergency Contact Email (Baruapepe ya Dharura)</label>
-                    <input type="email" name="emergency_contact_email" placeholder="emergency@example.com" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Relationship (Uhusiano)</label>
-                    <select name="emergency_contact_relationship" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                        <option value="">Select</option>
-                        <option value="spouse">Spouse (Mke/Mume)</option>
-                        <option value="sibling">Sibling (Kaka/Dada)</option>
-                        <option value="parent">Parent (Mzazi)</option>
-                        <option value="child">Child (Mtoto)</option>
-                        <option value="friend">Friend (Rafiki)</option>
-                        <option value="relative">Relative (Jamaa)</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <!-- Row 11 - Tithe Information -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Account Number (Nambari Ya Bahasha)</label>
-                    <input name="account_number" placeholder="Bank account number" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Monthly Tithe Amount (Kiasi cha Zaka)</label>
-                    <input type="number" name="tithe_amount_monthly" placeholder="0.00" step="0.01" min="0" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <!-- Row 12 - Service Information -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Pays Tithes Faithfully</label>
-                    <select name="pays_tithes_faithfully" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                        <option value="">Not specified</option>
-                        <option value="1">Yes (Ndiyo)</option>
-                        <option value="0">No (Hapana)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Doing Service Fully (Je Unafanya Huduma Yako)</label>
-                    <select name="is_doing_service_fully" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                        <option value="">Not specified</option>
-                        <option value="1">Yes (Ndiyo)</option>
-                        <option value="0">No (Hapana)</option>
-                    </select>
-                </div>
-                <!-- Row 13 - Church Service Details -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Service Level / Status (Daraja la Huduma)</label>
-                    <input name="service_level" placeholder="e.g., Leader, Active, Beginner" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Church Services (Huduma Kanisani)</label>
-                    <input name="church_services" placeholder="e.g., Choir, Ushering, Prayer Team" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <!-- Notes & Other -->
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Alternative Phone 2</label>
-                    <input name="alt_phone_2" placeholder="Alternative phone" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <!-- Notes full width -->
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Notes / Maelezo Mengine</label>
-                    <textarea name="notes" rows="2" placeholder="Optional notes" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm"></textarea>
+                    <label class="block text-xs font-semibold text-mist-600 mb-1">Email</label>
+                    <input type="email" name="email" placeholder="email@example.com" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
                 </div>
-                <!-- Buttons -->
                 <div class="md:col-span-2 flex justify-end gap-3 pt-2 border-t border-mist-100">
                     <button type="button" id="btn-cancel-member" class="px-4 py-2.5 rounded-xl bg-mist-100 text-mist-700 hover:bg-mist-200 text-sm font-medium">Cancel</button>
                     <button type="submit" class="px-6 py-2.5 rounded-xl bg-royal-600 text-white hover:bg-royal-700 text-sm font-semibold">Save Member</button>
@@ -448,31 +317,7 @@ async function loadStats() {
     } catch(_) {}
 }
 
-async function loadZones() {
-    try {
-        const res = await fetch(MB + '/api/v1/zones');
-        const data = await res.json();
-        const zoneSelect = document.querySelector('select[name="zone_id"]');
-        if (!zoneSelect) return;
-        
-        const zones = data.data || [];
-        const currentValue = zoneSelect.value;
-        zoneSelect.innerHTML = '<option value="">-- Select Zone --</option>';
-        
-        zones.forEach(zone => {
-            if (zone.is_active) {
-                const opt = document.createElement('option');
-                opt.value = zone.id;
-                opt.textContent = zone.name + (zone.location ? ' (' + zone.location + ')' : '');
-                zoneSelect.appendChild(opt);
-            }
-        });
-        
-        if (currentValue) zoneSelect.value = currentValue;
-    } catch(err) {
-        console.error('Failed to load zones:', err);
-    }
-}
+// zones removed: no client-side zone selection is needed in this deployment
 
 function calculateMembersDemographics() {
     if (!allMembers.length) {
@@ -565,7 +410,6 @@ function renderMembers(list) {
             <td class="px-4 py-3 text-mist-700">${r.phone || '-'}</td>
             <td class="px-4 py-3 text-mist-600 text-xs">${r.email || '-'}</td>
             <td class="px-4 py-3 text-mist-600 capitalize text-xs">${r.gender || '-'}</td>
-            <td class="px-4 py-3 text-mist-600 text-xs">${r.zone_name || '-'}</td>
             <td class="px-4 py-3"><span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusCls(r.member_status)}">${r.member_status}</span></td>
             <td class="px-4 py-3 text-mist-600 text-xs">${r.join_date ? r.join_date.substring(0,10) : '-'}</td>
             <td class="px-4 py-3 text-right">
@@ -607,7 +451,7 @@ document.getElementById('btn-clear-filters').addEventListener('click', () => {
 /*  Export CSV  */
 document.getElementById('btn-export-csv').addEventListener('click', () => {
     if (!allMembers.length) { alert('No members loaded to export.'); return; }
-    const cols = ['member_code','first_name','last_name','gender','phone','email','member_status','join_date','ward','district','region','zone_name','date_of_birth'];
+    const cols = ['member_code','first_name','last_name','gender','phone','email','member_status','join_date','ward','district','region','date_of_birth'];
     const header = cols.join(',');
     const rows = allMembers.map(r => cols.map(c => JSON.stringify(r[c] ?? '')).join(','));
     const blob = new Blob([header + '\n' + rows.join('\n')], { type: 'text/csv' });
@@ -621,7 +465,6 @@ function openAddModal() {
     document.getElementById('modal-title').textContent = 'Add New Member';
     document.getElementById('member-form').reset();
     hideFeedback();
-    loadZones();
     document.getElementById('member-modal').classList.remove('hidden');
 }
 
@@ -631,12 +474,12 @@ function openEditModal(id) {
     document.getElementById('edit-member-id').value = id;
     document.getElementById('modal-title').textContent = 'Edit Member  ' + m.first_name + ' ' + m.last_name;
     const f = document.getElementById('member-form');
-    const fields = ['first_name','last_name','gender','phone','email','member_code','date_of_birth','join_date','marital_status','baptism_date','ward','district','region','zone_id','member_status','notes'];
+    const fields = ['first_name','last_name','physical_address','join_date','member_code','gender','marital_status','phone','email'];
     fields.forEach(name => {
         const el = f.querySelector('[name="' + name + '"]');
         if (el) el.value = m[name] || '';
     });
-    loadZones();
+    // zones removed
     hideFeedback();
     document.getElementById('member-modal').classList.remove('hidden');
 }
@@ -661,7 +504,7 @@ function viewMemberDetails(id) {
                 <div><p class="text-xs text-mist-500 uppercase">Date of Birth</p><p class="text-mist-700">${member.date_of_birth ? member.date_of_birth.substring(0,10) : '-'}</p></div>
                 <div><p class="text-xs text-mist-500 uppercase">Marital Status</p><p class="capitalize text-mist-700">${member.marital_status || '-'}</p></div>
                 <div><p class="text-xs text-mist-500 uppercase">Baptism Date</p><p class="text-mist-700">${member.baptism_date ? member.baptism_date.substring(0,10) : '-'}</p></div>
-                <div><p class="text-xs text-mist-500 uppercase">Zone</p><p class="text-mist-700">${member.zone_name || '-'}</p></div>
+                <!-- Zone removed -->
                 <div><p class="text-xs text-mist-500 uppercase">Region</p><p class="text-mist-700">${member.region || '-'}</p></div>
                 <div class="col-span-2"><p class="text-xs text-mist-500 uppercase">Ward / District</p><p class="text-mist-700">${member.ward || '-'} / ${member.district || '-'}</p></div>
                 <div class="col-span-2"><p class="text-xs text-mist-500 uppercase">Church Services</p><p class="text-mist-700">${member.church_services || '-'}</p></div>

@@ -350,10 +350,8 @@ final class ApiController
         $gender = trim((string) ($_GET['gender'] ?? ''));
 
         $sql = 'SELECT m.id, m.member_code, m.first_name, m.last_name, m.phone, m.email, m.gender,
-                       m.member_status, m.join_date, m.ward, m.district, m.region, m.date_of_birth,
-                       m.zone_id, z.name as zone_name
+                       m.member_status, m.join_date, m.ward, m.district, m.region, m.date_of_birth
                 FROM members m
-                LEFT JOIN zones z ON m.zone_id = z.id
                 WHERE 1=1';
         $params = [];
 
@@ -426,88 +424,38 @@ final class ApiController
             $joinDate = date('Y-m-d');
         }
 
-        // 2026-04-07 UPDATE: Enhanced member creation to include 14 new fields
-        // Added geographic (city_village, country), professional (education_level, job_title),
-        // service (church_services, is_doing_service_fully, service_level),
-        // finance (pays_tithes_faithfully, account_number, tithe_amount_monthly),
-        // and contact (emergency_contact_relationship, emergency_contact_email, alt_phone_2, physical_address_detailed) fields
-        // Supports expanded member management for comprehensive congregation tracking
-        // 2026-05-14 UPDATE: Added zone_id for direct zone assignment during registration
+        $location = trim((string) (($input['physical_address'] ?? $input['location'] ?? '')));
+        $status = in_array($input['member_status'] ?? '', ['active', 'inactive', 'transferred', 'deceased'], true)
+            ? $input['member_status']
+            : 'active';
+
         $stmt = $this->pdo->prepare(
             'INSERT INTO members (member_code, first_name, last_name, gender, phone, email,
-                                  date_of_birth, join_date, marital_status, baptism_date,
-                                  physical_address, ward, district, region, zone_id, city_village, country,
-                                  education_level, job_title, church_services, is_doing_service_fully,
-                                  service_level, pays_tithes_faithfully, account_number, tithe_amount_monthly,
-                                  emergency_contact_relationship, emergency_contact_email, alt_phone_2,
-                                  physical_address_detailed, notes, member_status, created_by, updated_by)
+                                  join_date, marital_status, physical_address, member_status,
+                                  created_by, updated_by)
              VALUES (:member_code, :first_name, :last_name, :gender, :phone, :email,
-                     :date_of_birth, :join_date, :marital_status, :baptism_date,
-                     :physical_address, :ward, :district, :region, :zone_id, :city_village, :country,
-                     :education_level, :job_title, :church_services, :is_doing_service_fully,
-                     :service_level, :pays_tithes_faithfully, :account_number, :tithe_amount_monthly,
-                     :emergency_contact_relationship, :emergency_contact_email, :alt_phone_2,
-                     :physical_address_detailed, :notes, :status, :created_by, :updated_by)'
+                     :join_date, :marital_status, :physical_address, :status,
+                     :created_by, :updated_by)'
         );
+
         $n = fn(string $k): ?string => (isset($input[$k]) && $input[$k] !== '') ? trim((string) $input[$k]) : null;
-        $zoneId = $n('zone_id') ? (int) $n('zone_id') : null;
+
         $stmt->execute([
-            ':member_code'     => $memberCode,
-            ':first_name'      => trim((string) $input['first_name']),
-            ':last_name'       => trim((string) $input['last_name']),
-            ':gender'          => trim((string) $input['gender']),
-            ':phone'           => trim((string) $input['phone']),
-            ':email'           => $n('email'),
-            ':date_of_birth'   => $n('date_of_birth'),
-            ':join_date'       => $joinDate,
-            ':marital_status'  => $n('marital_status'),
-            ':baptism_date'    => $n('baptism_date'),
-            ':physical_address'=> $n('physical_address'),
-            ':ward'            => $n('ward'),
-            ':district'        => $n('district'),
-            ':region'          => $n('region'),
-            ':zone_id'         => $zoneId,
-            ':city_village'    => $n('city_village'),
-            ':country'         => $n('country') ?? 'Tanzania',
-            ':education_level' => $n('education_level'),
-            ':job_title'       => $n('job_title'),
-            ':church_services' => $n('church_services'),
-            ':is_doing_service_fully' => $n('is_doing_service_fully'),
-            ':service_level'   => $n('service_level'),
-            ':pays_tithes_faithfully' => $n('pays_tithes_faithfully'),
-            ':account_number'  => $n('account_number'),
-            ':tithe_amount_monthly' => $n('tithe_amount_monthly'),
-            ':emergency_contact_relationship' => $n('emergency_contact_relationship'),
-            ':emergency_contact_email' => $n('emergency_contact_email'),
-            ':alt_phone_2'     => $n('alt_phone_2'),
-            ':physical_address_detailed' => $n('physical_address_detailed'),
-            ':notes'           => $n('notes'),
-            ':status'          => in_array($input['member_status'] ?? '', ['active','inactive','transferred','deceased'], true) ? $input['member_status'] : 'active',
-            ':created_by'      => $actorId,
-            ':updated_by'      => $actorId,
+            ':member_code'      => $memberCode,
+            ':first_name'       => trim((string) $input['first_name']),
+            ':last_name'        => trim((string) $input['last_name']),
+            ':gender'           => trim((string) $input['gender']),
+            ':phone'            => trim((string) $input['phone']),
+            ':email'            => $n('email'),
+            ':join_date'        => $joinDate,
+            ':marital_status'   => $n('marital_status'),
+            ':physical_address' => $location !== '' ? $location : null,
+            ':status'           => $status,
+            ':created_by'       => $actorId,
+            ':updated_by'       => $actorId,
         ]);
 
         $id = (int) $this->pdo->lastInsertId();
-        
-        // 2026-05-16 UPDATE: Auto-add member to zone_members when zone_id is provided
-        if ($zoneId) {
-            try {
-                // Check if member is already in this zone
-                $checkStmt = $this->pdo->prepare('SELECT id FROM zone_members WHERE zone_id = ? AND member_id = ?');
-                $checkStmt->execute([$zoneId, $id]);
-                if (!$checkStmt->fetch()) {
-                    // Add member to zone
-                    $zoneStmt = $this->pdo->prepare('
-                        INSERT INTO zone_members (zone_id, member_id, is_active, assigned_date, created_at, updated_at)
-                        VALUES (?, ?, 1, NOW(), NOW(), NOW())
-                    ');
-                    $zoneStmt->execute([$zoneId, $id]);
-                }
-            } catch (\Throwable $e) {
-                // Log error but don't fail the member creation
-                error_log('Error adding member to zone: ' . $e->getMessage());
-            }
-        }
         
         Audit::log($this->pdo, $actorId ? (int) $actorId : null, 'members', 'create', 'members', $id, null, ['member_code' => $memberCode, 'name' => $input['first_name'] . ' ' . $input['last_name']], 'Created member profile');
 
@@ -519,31 +467,20 @@ final class ApiController
         if (!Auth::can('members.edit')) {
             Response::json(['success' => false, 'message' => 'No permission to edit members'], 403); return;
         }
-        // 2026-04-07 UPDATE: Expanded updateMember to support 14 new fields for comprehensive member management
-        // New fields include: geographic (city_village, country), professional (education_level, job_title),
-        // service (church_services, is_doing_service_fully, service_level),
-        // finance (pays_tithes_faithfully, account_number, tithe_amount_monthly),
-        // and contact (emergency_contact_relationship, emergency_contact_email, alt_phone_2, physical_address_detailed)
-        // See database/migrations/2026_04_07_001_add_member_details_fields.sql for schema changes
-        // 2026-05-14 UPDATE: Added zone_id for zone assignment
-        $allowed = ['first_name','last_name','phone','email','gender','date_of_birth','join_date',
-                    'member_status','physical_address','ward','district','region','zone_id','marital_status',
-                    'baptism_date','notes','alt_phone','city_village','country','education_level',
-                    'job_title','church_services','is_doing_service_fully','service_level',
-                    'pays_tithes_faithfully','account_number','tithe_amount_monthly',
-                    'emergency_contact_name','emergency_contact_phone','emergency_contact_email',
-                    'emergency_contact_relationship','alt_phone_2','physical_address_detailed'];
+        $allowed = ['first_name','last_name','gender','phone','email','member_code','join_date','marital_status','physical_address','member_status'];
         $set = [];
         $params = [':id' => $id];
         foreach ($allowed as $field) {
             if (array_key_exists($field, $input)) {
+                $value = $input[$field];
+                $params[":$field"] = ($value !== '' && $value !== null) ? $value : null;
                 $set[] = "`$field` = :$field";
-                $params[":$field"] = ($input[$field] !== '' && $input[$field] !== null) ? $input[$field] : null;
             }
         }
         if (empty($set)) {
             Response::json(['success' => false, 'message' => 'Nothing to update'], 422);
         }
+
         $user = Auth::user();
         $actorId = $user['id'] ?? null;
         $set[] = 'updated_by = :updated_by';
@@ -551,55 +488,6 @@ final class ApiController
 
         $stmt = $this->pdo->prepare('UPDATE members SET ' . implode(', ', $set) . ' WHERE id = :id');
         $stmt->execute($params);
-
-        // 2026-05-16 UPDATE: Handle automatic zone member assignment on update
-        if (array_key_exists('zone_id', $input)) {
-            try {
-                // Get old zone_id
-                $oldZoneStmt = $this->pdo->prepare('SELECT zone_id FROM members WHERE id = ? LIMIT 1');
-                $oldZoneStmt->execute([$id]);
-                $oldRow = $oldZoneStmt->fetch(\PDO::FETCH_ASSOC);
-                $oldZoneId = $oldRow ? (int) ($oldRow['zone_id'] ?? 0) : 0;
-                
-                $newZoneId = ($input['zone_id'] !== '' && $input['zone_id'] !== null) ? (int) $input['zone_id'] : 0;
-                
-                // If zone changed
-                if ($oldZoneId !== $newZoneId) {
-                    // Remove from old zone if it had one
-                    if ($oldZoneId > 0) {
-                        $removeStmt = $this->pdo->prepare('
-                            UPDATE zone_members SET is_active = 0 
-                            WHERE zone_id = ? AND member_id = ? AND is_active = 1
-                        ');
-                        $removeStmt->execute([$oldZoneId, $id]);
-                    }
-                    
-                    // Add to new zone if one is selected
-                    if ($newZoneId > 0) {
-                        $checkStmt = $this->pdo->prepare('SELECT id FROM zone_members WHERE zone_id = ? AND member_id = ?');
-                        $checkStmt->execute([$newZoneId, $id]);
-                        if (!$checkStmt->fetch()) {
-                            // New entry
-                            $addStmt = $this->pdo->prepare('
-                                INSERT INTO zone_members (zone_id, member_id, is_active, assigned_date, created_at, updated_at)
-                                VALUES (?, ?, 1, NOW(), NOW(), NOW())
-                            ');
-                            $addStmt->execute([$newZoneId, $id]);
-                        } else {
-                            // Reactivate if it was previously deactivated
-                            $reactivateStmt = $this->pdo->prepare('
-                                UPDATE zone_members SET is_active = 1, updated_at = NOW()
-                                WHERE zone_id = ? AND member_id = ?
-                            ');
-                            $reactivateStmt->execute([$newZoneId, $id]);
-                        }
-                    }
-                }
-            } catch (\Throwable $e) {
-                // Log error but don't fail the member update
-                error_log('Error updating member zone assignment: ' . $e->getMessage());
-            }
-        }
 
         Audit::log($this->pdo, $actorId ? (int) $actorId : null, 'members', 'update', 'members', $id, null, $input, 'Updated member profile');
         Response::json(['success' => true, 'message' => 'Member updated']);
@@ -646,7 +534,6 @@ final class ApiController
             'ward'             => ['ward','mtaa'],
             'district'         => ['district','wilaya'],
             'region'           => ['region','mkoa'],
-            'zone_id'          => ['zone_id','zone','zone name','zone_name'],
             'marital_status'   => ['marital_status','marital status','hali ya ndoa'],
             'baptism_date'     => ['baptism_date','baptism date','tarehe ya ubatizo'],
             'notes'            => ['notes','maelezo','note'],
@@ -672,11 +559,11 @@ final class ApiController
         $stmt = $this->pdo->prepare(
             'INSERT INTO members (member_code, first_name, last_name, gender, phone, email,
                                   date_of_birth, join_date, member_status, physical_address, ward,
-                                  district, region, zone_id, marital_status, baptism_date, notes,
+                                  district, region, marital_status, baptism_date, notes,
                                   created_by, updated_by)
              VALUES (:member_code, :first_name, :last_name, :gender, :phone, :email,
                      :date_of_birth, :join_date, :member_status, :physical_address, :ward,
-                     :district, :region, :zone_id, :marital_status, :baptism_date, :notes,
+                     :district, :region, :marital_status, :baptism_date, :notes,
                      :created_by, :updated_by)
              ON DUPLICATE KEY UPDATE updated_at = updated_at'
         );
@@ -716,24 +603,6 @@ final class ApiController
             $marital  = $get('marital_status');
             $marital  = in_array($marital, ['single','married','widowed','divorced'], true) ? $marital : null;
             
-            // Handle zone_id (could be numeric ID or zone name)
-            $zoneInput = $get('zone_id');
-            $zoneId = null;
-            if ($zoneInput !== '') {
-                // Try to parse as numeric first
-                if (is_numeric($zoneInput)) {
-                    $zoneId = (int) $zoneInput;
-                } else {
-                    // Try to find zone by name
-                    $zoneStmt = $this->pdo->prepare('SELECT id FROM zones WHERE name = ? OR location = ? LIMIT 1');
-                    $zoneStmt->execute([$zoneInput, $zoneInput]);
-                    $zoneRow = $zoneStmt->fetch(\PDO::FETCH_ASSOC);
-                    if ($zoneRow) {
-                        $zoneId = (int) $zoneRow['id'];
-                    }
-                }
-            }
-
             try {
                 $stmt->execute([
                     ':member_code'     => $memberCode,
@@ -749,7 +618,6 @@ final class ApiController
                     ':ward'            => $nul('ward'),
                     ':district'        => $nul('district'),
                     ':region'          => $nul('region'),
-                    ':zone_id'         => $zoneId,
                     ':marital_status'  => $marital,
                     ':baptism_date'    => $bapt,
                     ':notes'           => $nul('notes'),
@@ -757,36 +625,6 @@ final class ApiController
                     ':updated_by'      => $actorId,
                 ]);
                 $inserted++;
-                
-                // 2026-05-16 UPDATE: Auto-add imported member to zone_members when zone_id is provided
-                if ($zoneId) {
-                    try {
-                        // Get the member ID - use the code to find it since ON DUPLICATE KEY might not update
-                        $getMemberStmt = $this->pdo->prepare('SELECT id FROM members WHERE member_code = ? LIMIT 1');
-                        $getMemberStmt->execute([$memberCode]);
-                        $memberRow = $getMemberStmt->fetch(\PDO::FETCH_ASSOC);
-                        
-                        if ($memberRow) {
-                            $memberId = (int) $memberRow['id'];
-                            
-                            // Check if already in zone
-                            $checkStmt = $this->pdo->prepare('SELECT id FROM zone_members WHERE zone_id = ? AND member_id = ?');
-                            $checkStmt->execute([$zoneId, $memberId]);
-                            
-                            if (!$checkStmt->fetch()) {
-                                // Add to zone
-                                $addZoneStmt = $this->pdo->prepare('
-                                    INSERT INTO zone_members (zone_id, member_id, is_active, assigned_date, created_at, updated_at)
-                                    VALUES (?, ?, 1, NOW(), NOW(), NOW())
-                                ');
-                                $addZoneStmt->execute([$zoneId, $memberId]);
-                            }
-                        }
-                    } catch (\Throwable $e) {
-                        // Log but don't fail the import
-                        error_log('Error adding imported member to zone: ' . $e->getMessage());
-                    }
-                }
             } catch (\PDOException $e) {
                 if (str_contains($e->getMessage(), 'Duplicate entry')) {
                     $skipped++;
