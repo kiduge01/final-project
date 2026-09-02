@@ -2,12 +2,18 @@ Options -Indexes
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    # RewriteBase removed for portability
-    
+
+    # Keep member and guest operations independent from the legacy API controller.
+    RewriteRule ^api/v1/members(?:/.*)?$ member_guest_api.php [QSA,L]
+    RewriteRule ^api/v1/attendance/(?:guests|register-guest)$ member_guest_api.php [QSA,L]
+
+    # The Guests module is now a tab inside Members.
+    RewriteRule ^guests/?$ members?tab=guests [R=302,L]
+
     # Allow direct access to real files and directories
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    
+
     # Route everything else to index.php
     RewriteRule ^ index.php [QSA,L]
 </IfModule>
