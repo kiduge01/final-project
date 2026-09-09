@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # RewriteBase is removed to make the app more portable. 
+    # It will automatically detect the base path.
+    
+    # Don't rewrite if it's a real file or directory
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+    
+    # Don't rewrite requests to /department folder - let them go directly
+    RewriteRule ^department/ - [L]
+    
+    # Rewrite everything else to public/index.php
+    RewriteRule ^(.*)$ public/index.php [L]
+</IfModule>
