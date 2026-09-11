@@ -87,6 +87,7 @@
             <div>
                 <label class="block text-xs font-semibold text-emerald-700 mb-1">Guests</label>
                 <input id="guests-count" name="guests_count" type="number" min="0" value="0" class="w-full rounded-xl border border-emerald-200 bg-emerald-50/50 px-3 py-2.5 text-sm">
+                <p class="text-xs text-mist-500 mt-1">Enter the guest count, then register their details after saving.</p>
             </div>
             <div class="pt-[21px]">
                 <div class="rounded-xl border border-royal-200 bg-royal-50 px-3 py-2.5 text-sm text-royal-700 flex items-center justify-between">
@@ -118,88 +119,6 @@
             <div id="trend-bars" class="h-36 flex items-end gap-1.5"></div>
         </div>
     </article>
-</section>
-
-<section class="bg-white rounded-2xl border border-mist-200 shadow-sm p-5 mb-6">
-    <div class="flex items-center gap-2 mb-4">
-        <i class="fas fa-user-plus text-emerald-600 text-lg"></i>
-        <h2 class="text-lg font-heading font-semibold text-royal-800">Guest Registration</h2>
-    </div>
-    <p class="text-sm text-mist-600 mb-4">Register visiting guests who attended the service with their contact information for follow-up.</p>
-
-    <form id="guest-registration-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        <div>
-            <label class="block text-xs font-semibold text-mist-600 mb-1">First Name <span class="text-red-500">*</span></label>
-            <input name="first_name" type="text" required placeholder="John" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-        </div>
-
-        <div>
-            <label class="block text-xs font-semibold text-mist-600 mb-1">Last Name <span class="text-red-500">*</span></label>
-            <input name="last_name" type="text" required placeholder="Doe" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-        </div>
-
-        <div>
-            <label class="block text-xs font-semibold text-mist-600 mb-1">Phone Number <span class="text-red-500">*</span></label>
-            <input name="phone" type="tel" required placeholder="+255 700 000000" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-        </div>
-
-        <div>
-            <label class="block text-xs font-semibold text-mist-600 mb-1">Location/Area <span class="text-red-500">*</span></label>
-            <input name="location" type="text" required placeholder="e.g. Kinondoni, Ilala" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-        </div>
-
-        <div>
-            <label class="block text-xs font-semibold text-mist-600 mb-1">Email</label>
-            <input name="email" type="email" placeholder="john@example.com" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-        </div>
-
-        <div>
-            <label class="block text-xs font-semibold text-mist-600 mb-1">Age Group</label>
-            <select name="age_group" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                <option value="">Select age group</option>
-                <option value="child">Child (0-12)</option>
-                <option value="teen">Teen (13-19)</option>
-                <option value="youth">Youth (20-35)</option>
-                <option value="adult">Adult (36-60)</option>
-                <option value="senior">Senior (60+)</option>
-            </select>
-        </div>
-
-        <div>
-            <label class="block text-xs font-semibold text-mist-600 mb-1">Visit Type <span class="text-red-500">*</span></label>
-            <select name="visit_type" required class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                <option value="first_time">First Time Visitor</option>
-                <option value="returning">Returning Visitor</option>
-                <option value="referred">Referred by Member</option>
-            </select>
-        </div>
-
-        <div>
-            <label class="block text-xs font-semibold text-mist-600 mb-1">Who Invited?</label>
-            <input name="invited_by_name" type="text" placeholder="Name of member (if referred)" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-        </div>
-
-        <div>
-            <label class="block text-xs font-semibold text-mist-600 mb-1">Service Date <span class="text-red-500">*</span></label>
-            <input name="service_date" type="date" required class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-        </div>
-
-        <div class="md:col-span-2 lg:col-span-1">
-            <label class="block text-xs font-semibold text-mist-600 mb-1">Follow-up Date</label>
-            <input name="follow_up_date" type="date" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-        </div>
-
-        <div class="md:col-span-2 lg:col-span-2">
-            <label class="block text-xs font-semibold text-mist-600 mb-1">Notes</label>
-            <textarea name="notes" rows="2" placeholder="Additional comments about the guest..." class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm"></textarea>
-        </div>
-
-        <div class="flex items-end justify-end md:col-span-2 lg:col-span-1">
-            <button type="submit" class="w-full px-5 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-semibold">Register Guest</button>
-        </div>
-    </form>
-
-    <div id="guest-feedback" class="hidden mt-3 rounded-xl px-3 py-2 text-sm"></div>
 </section>
 
 <section class="bg-white rounded-2xl border border-mist-200 shadow-sm overflow-hidden">
@@ -328,6 +247,13 @@ async function loadAttendanceEvents() {
     select.innerHTML = '<option value="">Select Event / Ibada</option>' + rows.map(e => `<option value="${e.id}">${e.title} — ${String(e.start_datetime).slice(0,16)}</option>`).join('');
 }
 
+function selectedAttendanceEventDate() {
+    const selected = document.getElementById('attendance-event').selectedOptions[0];
+    const label = selected ? selected.textContent : '';
+    const match = label.match(/(\d{4}-\d{2}-\d{2})/);
+    return match ? match[1] : '';
+}
+
 function editAttendance(id) {
     const r = attendanceRows.find(x => Number(x.id) === Number(id));
     if (!r) return;
@@ -418,11 +344,14 @@ document.getElementById('attendance-form').addEventListener('submit', async (e) 
     e.preventDefault();
     const fd = new FormData(e.target);
     const payload = Object.fromEntries(fd.entries());
+    const isEdit = Boolean(editingAttendanceId);
+    const serviceDate = selectedAttendanceEventDate();
+    const expectedGuestCount = Number(payload.guests_count || 0);
 
     try {
         const url = BASE_URL + '/api/v1/attendance/snapshots' + (editingAttendanceId ? '/' + editingAttendanceId : '');
         const res = await fetch(url, {
-            method: editingAttendanceId ? 'PUT' : 'POST',
+            method: isEdit ? 'PUT' : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
@@ -433,7 +362,18 @@ document.getElementById('attendance-form').addEventListener('submit', async (e) 
             return;
         }
 
-        setFeedback(editingAttendanceId ? 'Attendance updated successfully.' : `Attendance saved successfully. Total captured: ${data.data?.total_count ?? ''}`);
+        if (!isEdit) {
+            const redirectParams = new URLSearchParams({
+                tab: 'guests',
+                action: 'create-guest',
+                service_date: serviceDate,
+                expected_guests: String(expectedGuestCount)
+            });
+            window.location.href = BASE_URL + '/members?' + redirectParams.toString();
+            return;
+        }
+
+        setFeedback('Attendance updated successfully.');
         e.target.reset();
         editingAttendanceId = null;
         document.querySelector('#attendance-form button[type="submit"]').textContent = 'Save Attendance';
@@ -461,61 +401,6 @@ typeEl.addEventListener('change', () => {
 
 recomputeTotal();
 loadAttendanceEvents();
-
-// Guest registration form handler
-const guestForm = document.getElementById('guest-registration-form');
-guestForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    function setGuestFeedback(message, isError = false) {
-        const el = document.getElementById('guest-feedback');
-        el.classList.remove('hidden');
-        el.textContent = message;
-        el.className = `mt-3 rounded-xl px-3 py-2 text-sm ${isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
-    }
-
-    try {
-        const payload = {
-            first_name: (e.target.querySelector('[name="first_name"]').value || '').trim(),
-            last_name: (e.target.querySelector('[name="last_name"]').value || '').trim(),
-            phone: (e.target.querySelector('[name="phone"]').value || '').trim(),
-            location: (e.target.querySelector('[name="location"]').value || '').trim(),
-            email: (e.target.querySelector('[name="email"]').value || '').trim(),
-            age_group: (e.target.querySelector('[name="age_group"]').value || '').trim(),
-            visit_type: (e.target.querySelector('[name="visit_type"]').value || 'first_time').trim(),
-            invited_by_name: (e.target.querySelector('[name="invited_by_name"]').value || '').trim(),
-            service_date: (e.target.querySelector('[name="service_date"]').value || '').trim(),
-            follow_up_date: (e.target.querySelector('[name="follow_up_date"]').value || '').trim() || null,
-            notes: (e.target.querySelector('[name="notes"]').value || '').trim(),
-        };
-
-        // Validate required fields
-        if (!payload.first_name || !payload.last_name || !payload.phone || !payload.location || !payload.service_date) {
-            setGuestFeedback('Please fill in all required fields (marked with *)', true);
-            return;
-        }
-
-        const res = await fetch(BASE_URL + '/api/v1/attendance/register-guest', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-
-        const data = await res.json();
-        if (!res.ok || !data.success) {
-            setGuestFeedback(data.message || 'Failed to register guest', true);
-            return;
-        }
-
-        setGuestFeedback(`Guest registered successfully! Guest Code: ${data.data?.guest_code ?? ''}`);
-        e.target.reset();
-        document.querySelector('[name="service_date"]').value = new Date().toISOString().slice(0, 10);
-        document.querySelector('[name="visit_type"]').value = 'first_time';
-    } catch (error) {
-        setGuestFeedback('Network error while registering guest', true);
-        console.error('Guest registration error:', error);
-    }
-});
 
 Promise.all([loadOverview(), loadHistory()]).catch((error) => {
     console.error('Attendance page bootstrap failed', error);

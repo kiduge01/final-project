@@ -3,18 +3,16 @@
     <div><h1 class="ui-title">Settings & Security</h1><p class="ui-subtitle">Manage your account, users, access control, church profile, communication and security preferences.</p></div>
   </div>
 
-  <div class="grid lg:grid-cols-[240px_1fr] gap-5">
-    <aside class="ui-card p-2 h-fit no-print">
-      <nav id="settings-tabs" class="space-y-1">
-        <button class="settings-tab is-active" data-tab="account">My Account</button>
-        <button class="settings-tab" data-tab="users">Users</button>
-        <button class="settings-tab" data-tab="roles">Roles & Permissions</button>
-        <button class="settings-tab" data-tab="system">Church & System</button>
-        <button class="settings-tab" data-tab="communication">SMS & Email</button>
-        <button class="settings-tab" data-tab="security">Security</button>
-        <button class="settings-tab" data-tab="audit">Audit Log</button>
-      </nav>
-    </aside>
+  <div class="space-y-5">
+    <nav id="settings-tabs" class="settings-tabs no-print">
+      <button class="settings-tab is-active" data-tab="account">My Account</button>
+      <button class="settings-tab" data-tab="users">Users</button>
+      <button class="settings-tab" data-tab="roles">Roles & Permissions</button>
+      <button class="settings-tab" data-tab="system">Church & System</button>
+      <button class="settings-tab" data-tab="communication">SMS & Email</button>
+      <button class="settings-tab" data-tab="security">Security</button>
+      <button class="settings-tab" data-tab="audit">Audit Log</button>
+    </nav>
 
     <div class="space-y-5">
       <section class="settings-panel ui-card" data-panel="account">
@@ -42,8 +40,9 @@
       </section>
 
       <section class="settings-panel ui-card hidden" data-panel="roles">
-        <div class="mb-5"><h2 class="ui-section-title">Roles & Permissions</h2><p class="ui-section-sub">Review role-based access to the active system functions.</p></div>
-        <div id="roles-grid" class="grid md:grid-cols-2 gap-4"><div class="ui-skeleton h-32"></div><div class="ui-skeleton h-32"></div></div>
+        <div class="mb-4"><h2 class="ui-section-title">Role Permissions</h2><p class="ui-section-sub">Click toggles to grant or revoke access per role, then save.</p></div>
+        <div id="role-tabs" class="role-tabs mb-5"><div class="ui-skeleton h-10 w-40"></div></div>
+        <div id="roles-grid"><div class="ui-skeleton h-64"></div></div>
       </section>
 
       <section class="settings-panel ui-card hidden" data-panel="system">
@@ -84,8 +83,8 @@
         <div class="mb-5"><h2 class="ui-section-title">Audit Log</h2><p class="ui-section-sub">Recent administrative changes and AI actions.</p></div>
         <div class="overflow-x-auto"><table class="ui-table"><thead><tr><th>Date</th><th>User</th><th>Module</th><th>Action</th><th>Description</th></tr></thead><tbody id="audit-body"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
       </section>
-    </div>
   </div>
+</div>
 </div>
 
 <div id="user-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/40 p-4">
@@ -105,20 +104,51 @@
 </div>
 
 <style>
-.settings-tab{width:100%;text-align:left;padding:.75rem .9rem;border-radius:.75rem;font-size:.875rem;font-weight:600;color:#64748b;transition:.18s}.settings-tab:hover{background:#f8fafc;color:#0f172a}.settings-tab.is-active{background:#eef2ff;color:#3344a5}.settings-panel{min-height:300px}
+.settings-tabs{display:flex;align-items:center;gap:.45rem;overflow-x:auto;border-bottom:1px solid #dbe3ef;padding-bottom:.65rem;scrollbar-width:thin}
+.settings-tab{display:inline-flex;align-items:center;justify-content:center;min-height:40px;white-space:nowrap;padding:.65rem 1rem;border-radius:.5rem;background:#0f7f95!important;font-size:.875rem;font-weight:700;color:#fff!important;transition:.18s}
+.settings-tab:hover{background:#0b6f83!important;color:#fff!important}
+.settings-tab.is-active{background:#0f766e!important;color:#fff!important;box-shadow:inset 0 -3px 0 rgba(255,255,255,.35)}
+.settings-panel{min-height:300px}
+.role-tabs{display:flex;align-items:center;gap:.55rem;overflow-x:auto;padding-bottom:.35rem;scrollbar-width:thin}
+.role-tab{display:inline-flex;align-items:center;justify-content:center;min-height:40px;white-space:nowrap;padding:.65rem 1rem;border-radius:.5rem;background:#0f7f95!important;color:#fff!important;font-size:.875rem;font-weight:800;transition:.18s}
+.role-tab:hover{background:#0b6f83!important;color:#fff!important}
+.role-tab.is-active{background:#0f766e!important;color:#fff!important;box-shadow:0 8px 18px rgba(15,118,110,.16)}
+.permission-shell{border:1px solid #dbe3ef;border-radius:1rem;background:#fff;padding:1.25rem}
+.permission-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem}
+.permission-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.85rem}
+.permission-card{overflow:hidden;border:1px solid #dbe3ef;border-radius:.75rem;background:#fff}
+.permission-card-head{display:flex;align-items:center;gap:.45rem;padding:.72rem .9rem;border-bottom:1px solid currentColor;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.permission-card-body{display:grid}
+.permission-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.72rem .9rem;border-bottom:1px solid #edf2f7;font-size:.9rem}
+.permission-row:last-child{border-bottom:0}
+.permission-row.is-off{color:#94a3b8;background:#f8fafc}
+.perm-switch input{appearance:none!important;width:48px!important;height:24px!important;min-width:48px!important;border:0!important;border-radius:999px!important;background:#cbd5e1!important;box-shadow:none!important;cursor:pointer;position:relative;transition:.18s}
+.perm-switch input:before{content:"";position:absolute;width:20px;height:20px;left:2px;top:2px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.18);transition:.18s}
+.perm-switch input:checked{background:#5dbdb4!important}
+.perm-switch input:checked:before{transform:translateX(24px)}
+.perm-switch input:disabled{opacity:.7;cursor:not-allowed}
+.perm-assets{color:#1f2937;background:#f8fafc}.perm-attendance{color:#008a5a;background:#ecfdf3}.perm-communication{color:#db2777;background:#fdf2f8}.perm-departments{color:#7c3aed;background:#faf5ff}.perm-events{color:#ea580c;background:#fff7ed}.perm-finance{color:#059669;background:#ecfdf5}.perm-members{color:#2563eb;background:#eff6ff}.perm-settings{color:#4f46e5;background:#eef2ff}.perm-reports{color:#0f766e;background:#f0fdfa}.perm-default{color:#475569;background:#f8fafc}
+@media(max-width:640px){.settings-tabs{gap:.4rem;padding-bottom:.6rem}.settings-tab{flex:0 0 auto;min-height:38px;padding:.58rem .82rem;font-size:.78rem}}
+@media(max-width:1100px){.permission-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.permission-head{display:block}.permission-head .ui-btn{margin-top:1rem;width:100%}.permission-grid{grid-template-columns:1fr}.role-tab{flex:0 0 auto;font-size:.78rem;padding:.58rem .82rem}}
 </style>
 <script>
 const api = (p,o={}) => fetch(`${BASE_URL}/api/v1/${p}`,o).then(async r=>{const j=await r.json();if(!r.ok||j.success===false)throw new Error(j.message||'Request failed');return j});
 const toast=m=>{const e=document.createElement('div');e.className='fixed right-5 top-5 z-[70] rounded-xl bg-slate-900 px-4 py-3 text-sm text-white shadow-xl';e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),2800)};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-let roles=[];let users=[];
+let roles=[];let users=[];let permissions=[];let activeRoleId=null;
 document.querySelectorAll('.settings-tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.settings-tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('.settings-panel').forEach(x=>x.classList.add('hidden'));document.querySelector(`[data-panel="${b.dataset.tab}"]`)?.classList.remove('hidden');if(b.dataset.tab==='users')loadUsers();if(b.dataset.tab==='roles')loadRoles();if(b.dataset.tab==='audit')loadAudit();}));
 async function loadAccount(){try{const d=(await api('settings/account')).data||{};accountName.value=d.full_name||'';accountPhone.value=d.phone||'';accountEmail.value=d.email||'';accountRole.value=d.role_name||'';}catch(e){toast(e.message)}}
 const accountName=document.getElementById('account-name'),accountPhone=document.getElementById('account-phone'),accountEmail=document.getElementById('account-email'),accountRole=document.getElementById('account-role');
 document.getElementById('account-form').addEventListener('submit',async e=>{e.preventDefault();try{await api('settings/account',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({full_name:accountName.value,phone:accountPhone.value,email:accountEmail.value})});toast('Account updated');}catch(x){toast(x.message)}});
 document.getElementById('password-form').addEventListener('submit',async e=>{e.preventDefault();try{await api('settings/account/password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({current_password:document.getElementById('current-password').value,new_password:document.getElementById('new-password').value,confirm_password:document.getElementById('confirm-password').value})});e.target.reset();toast('Password changed');}catch(x){toast(x.message)}});
-async function loadRoles(){try{roles=(await api('settings/roles')).data||[];const all=(await api('settings/permissions')).data||[];document.getElementById('roles-grid').innerHTML=roles.map(r=>{const selected=new Set((r.permissions||[]).map(p=>Number(p.permission_id)));const grouped={};all.forEach(p=>(grouped[p.module]??=[]).push(p));return `<article class="rounded-xl border border-slate-200 p-4"><div class="flex items-start justify-between gap-3"><div><strong>${esc(r.name)}</strong><p class="text-xs text-slate-500 mt-1">${esc(r.description||'Role-based system access')}</p></div><span class="ui-pill">${selected.size} permissions</span></div><div class="mt-4 max-h-64 overflow-y-auto space-y-3">${Object.entries(grouped).map(([module,ps])=>`<div><div class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-1">${esc(module)}</div><div class="grid gap-1">${ps.map(p=>`<label class="flex items-center gap-2 text-xs"><input type="checkbox" class="role-perm-${r.id}" value="${p.id}" ${selected.has(Number(p.id))?'checked':''}> <span>${esc(p.name)}</span></label>`).join('')}</div></div>`).join('')}</div><button type="button" class="ui-btn ui-btn-secondary mt-4 w-full" onclick="saveRolePermissions(${r.id})">Save ${esc(r.name)} permissions</button></article>`}).join('');fillRoleSelect();}catch(e){document.getElementById('roles-grid').innerHTML=`<p>${esc(e.message)}</p>`}}
-window.saveRolePermissions=async roleId=>{const ids=[...document.querySelectorAll(`.role-perm-${roleId}:checked`)].map(x=>Number(x.value));try{await api(`settings/roles/${roleId}/permissions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({permission_ids:ids})});toast('Role permissions updated');loadRoles()}catch(e){toast(e.message)}};
+function moduleClass(module){const key=String(module||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');return ['assets','attendance','communication','departments','events','finance','members','settings','reports'].includes(key)?`perm-${key}`:'perm-default'}
+function permissionLabel(p){const raw=String(p.name||p.action||'Permission');const part=raw.includes('.')?raw.split('.').pop():raw;return part.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}
+function selectedRole(){return roles.find(r=>Number(r.id)===Number(activeRoleId))||roles[0]||null}
+function renderRoleTabs(){const tabs=document.getElementById('role-tabs');tabs.innerHTML=roles.map(r=>`<button type="button" class="role-tab ${Number(r.id)===Number(activeRoleId)?'is-active':''}" data-role-id="${r.id}">${esc(r.name)}</button>`).join('');tabs.querySelectorAll('.role-tab').forEach(btn=>btn.addEventListener('click',()=>{activeRoleId=Number(btn.dataset.roleId);renderRolePermissions()}))}
+function renderRolePermissions(){const role=selectedRole();const grid=document.getElementById('roles-grid');if(!role){grid.innerHTML='<p class="text-sm text-slate-500">No roles found.</p>';document.getElementById('role-tabs').innerHTML='';return}renderRoleTabs();const isAdmin=String(role.name||'').toLowerCase()==='admin';const selected=new Set((role.permissions||[]).map(p=>Number(p.permission_id||p.id)));const grouped={};permissions.forEach(p=>(grouped[p.module||'General']??=[]).push(p));const granted=p=>isAdmin||selected.has(Number(p.id));const cards=Object.entries(grouped).map(([module,ps])=>{const total=ps.length;const count=ps.filter(granted).length;return `<article class="permission-card"><div class="permission-card-head ${moduleClass(module)}"><span>${esc(module)}</span><span class="text-xs opacity-60">(${count}/${total})</span></div><div class="permission-card-body">${ps.map(p=>`<label class="permission-row ${granted(p)?'':'is-off'}"><span>${esc(permissionLabel(p))}</span><span class="perm-switch"><input type="checkbox" class="role-perm-${role.id}" value="${p.id}" ${granted(p)?'checked':''} ${isAdmin?'disabled':''}></span></label>`).join('')}</div></article>`}).join('');grid.innerHTML=`<article class="permission-shell"><div class="permission-head"><div><h3 class="text-lg font-bold text-slate-900">${esc(role.name)}</h3><p class="text-sm text-slate-500 mt-1">${isAdmin?'Full access - all permissions always granted':esc(role.description||'Role-based system access')}</p></div>${isAdmin?'<p class="text-xs italic text-slate-400">All access - no edits needed</p>':`<button type="button" class="ui-btn ui-btn-primary" onclick="saveRolePermissions(${role.id})">Save ${esc(role.name)}</button>`}</div><div class="permission-grid">${cards}</div></article>`}
+async function loadRoles(){try{roles=(await api('settings/roles')).data||[];permissions=(await api('settings/permissions')).data||[];if(!activeRoleId&&roles.length)activeRoleId=Number(roles[0].id);renderRolePermissions();fillRoleSelect();}catch(e){document.getElementById('roles-grid').innerHTML=`<p>${esc(e.message)}</p>`}}
+window.saveRolePermissions=async roleId=>{const role=roles.find(r=>Number(r.id)===Number(roleId));if(String(role?.name||'').toLowerCase()==='admin'){toast('Admin keeps full access');return}const ids=[...document.querySelectorAll(`.role-perm-${roleId}:checked`)].map(x=>Number(x.value));try{await api(`settings/roles/${roleId}/permissions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({permission_ids:ids})});toast('Role permissions updated');loadRoles()}catch(e){toast(e.message)}};
 function fillRoleSelect(){document.getElementById('user-role').innerHTML=roles.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('')}
 async function loadUsers(){try{if(!roles.length)await loadRoles();users=(await api('settings/users')).data||[];document.getElementById('users-body').innerHTML=users.map(u=>`<tr><td><strong>${esc(u.full_name)}</strong><div class="text-xs text-slate-400">#${u.id}</div></td><td>${esc(u.phone)}<div class="text-xs text-slate-400">${esc(u.email||'')}</div></td><td>${esc(u.role_name||'—')}</td><td><span class="ui-pill ${Number(u.is_active)?'ui-pill-green':''}">${Number(u.is_active)?'Active':'Inactive'}</span></td><td>${esc(u.last_login_at||'Never')}</td><td><button class="text-royal-700 font-semibold text-xs" onclick="editUser(${u.id})">Edit</button>${Number(u.is_active)?` <button class="text-red-600 font-semibold text-xs ml-3" onclick="deactivateUser(${u.id})">Deactivate</button>`:''}</td></tr>`).join('')||'<tr><td colspan="6">No users found.</td></tr>';}catch(e){toast(e.message)}}
 const modal=document.getElementById('user-modal');function openUserModal(){modal.classList.remove('hidden');modal.classList.add('flex')}function closeUserModal(){modal.classList.add('hidden');modal.classList.remove('flex')}

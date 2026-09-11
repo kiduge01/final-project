@@ -229,6 +229,9 @@ if (str_starts_with($uri, '/api/v1/')) {
         $method === 'GET' && $uri === '/api/v1/attendance/guests'
             => $apiController->getGuests(),
 
+        $method === 'POST' && $uri === '/api/v1/guests/import'
+            => $apiController->importGuests(),
+
         $method === 'PUT' && preg_match('#^/api/v1/guests/(\d+)$#', $uri, $m) === 1
             => $apiController->updateGuest((int) $m[1], json_decode((string) file_get_contents('php://input'), true) ?: []),
 

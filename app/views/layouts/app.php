@@ -37,9 +37,9 @@ $menu = array_filter($menu, fn($item) =>
     <!-- Precompiled, purged Tailwind build (replaces the CDN JIT compiler for speed).
          assets/ lives at the project root, one level above public/, so this must use
          Url::to() (root-relative) rather than $B (which points at .../public). -->
-    <link rel="stylesheet" href="<?= \App\Core\Url::to('assets/css/tailwind.css') ?>">
-    <link rel="stylesheet" href="<?= \App\Core\Url::to('assets/css/app.css') ?>">
-    <link rel="stylesheet" href="<?= \App\Core\Url::to('assets/css/professional-ui.css') ?>">
+    <link rel="stylesheet" href="<?= \App\Core\Url::to('assets/css/tailwind.css') ?>?v=<?= @filemtime(__DIR__ . '/../../../assets/css/tailwind.css') ?: time() ?>">
+    <link rel="stylesheet" href="<?= \App\Core\Url::to('assets/css/app.css') ?>?v=<?= @filemtime(__DIR__ . '/../../../assets/css/app.css') ?: time() ?>">
+    <link rel="stylesheet" href="<?= \App\Core\Url::to('assets/css/professional-ui.css') ?>?v=<?= @filemtime(__DIR__ . '/../../../assets/css/professional-ui.css') ?: time() ?>">
     <meta name="csrf-token" content="<?= htmlspecialchars(\App\Core\Auth::getCsrfToken()) ?>">
     <script>
         const BASE_URL = '<?= $B ?>';

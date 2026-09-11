@@ -1857,6 +1857,10 @@ final class ApiController
         $eventStmt->execute([':id'=>$eventId]); $event=$eventStmt->fetch();
         if(!$event){ Response::json(['success'=>false,'message'=>'Selected Event / Ibada was not found or is cancelled'],422); return; }
         $serviceDate=date('Y-m-d',strtotime((string)$event['start_datetime']));
+        if ($serviceDate > date('Y-m-d')) {
+            Response::json(['success' => false, 'message' => 'This event date has not been reached yet. Record attendance on or after the event date.'], 422);
+            return;
+        }
         $serviceName=(string)$event['title'];
         $typeMap=['service'=>'sunday_service','seminar'=>'special','meeting'=>'other','appointment'=>'other','other'=>'other'];
         $serviceType=$typeMap[(string)$event['event_type']]??'other';
@@ -1932,13 +1936,15 @@ final class ApiController
         $this->ensureAttendanceEventColumn();
         $oldSt=$this->pdo->prepare('SELECT * FROM attendance_snapshots WHERE id=:id');$oldSt->execute([':id'=>$id]);$old=$oldSt->fetch();if(!$old){Response::json(['success'=>false,'message'=>'Attendance record not found'],404);return;}
         $eventId=(int)($input['event_id']??$old['event_id']);$e=$this->pdo->prepare('SELECT title,event_type,start_datetime FROM events WHERE id=:id');$e->execute([':id'=>$eventId]);$event=$e->fetch();if(!$event){Response::json(['success'=>false,'message'=>'Select a valid event'],422);return;}
+        $serviceDate=date('Y-m-d',strtotime((string)$event['start_datetime']));
+        if ($serviceDate > date('Y-m-d')) {Response::json(['success'=>false,'message'=>'This event date has not been reached yet. Record attendance on or after the event date.'],422);return;}
         $vals=[];foreach(['men_count','women_count','children_count','youth_count','guests_count'] as $f)$vals[$f]=max(0,(int)($input[$f]??$old[$f]));$total=array_sum($vals);if($total<=0){Response::json(['success'=>false,'message'=>'Enter at least one attendance value'],422);return;}
         $map=['service'=>'sunday_service','seminar'=>'special','meeting'=>'other','appointment'=>'other','other'=>'other'];
         $allowedSessions=['main_service','first_sermon','second_sermon','third_sermon','other'];
         $sessionType=trim((string)($input['session_type']??($old['session_type']??'main_service')));
         if(!in_array($sessionType,$allowedSessions,true)){Response::json(['success'=>false,'message'=>'Select a valid attendance Type / Sermon'],422);return;}
         $st=$this->pdo->prepare('UPDATE attendance_snapshots SET event_id=:event_id,service_date=:d,service_name=:n,service_type=:t,session_type=:session_type,men_count=:men,women_count=:women,children_count=:children,youth_count=:youth,guests_count=:guests,total_count=:total,notes=:notes WHERE id=:id');
-        $st->execute([':event_id'=>$eventId,':d'=>date('Y-m-d',strtotime((string)$event['start_datetime'])),':n'=>$event['title'],':t'=>$map[$event['event_type']]??'other',':session_type'=>$sessionType,':men'=>$vals['men_count'],':women'=>$vals['women_count'],':children'=>$vals['children_count'],':youth'=>$vals['youth_count'],':guests'=>$vals['guests_count'],':total'=>$total,':notes'=>trim((string)($input['notes']??$old['notes'])),':id'=>$id]);
+        $st->execute([':event_id'=>$eventId,':d'=>$serviceDate,':n'=>$event['title'],':t'=>$map[$event['event_type']]??'other',':session_type'=>$sessionType,':men'=>$vals['men_count'],':women'=>$vals['women_count'],':children'=>$vals['children_count'],':youth'=>$vals['youth_count'],':guests'=>$vals['guests_count'],':total'=>$total,':notes'=>trim((string)($input['notes']??$old['notes'])),':id'=>$id]);
         $u=Auth::user();Audit::log($this->pdo,(int)($u['id']??0)?:null,'attendance','update','attendance_snapshots',$id,$old,$input,'Updated attendance record');Response::json(['success'=>true,'message'=>'Attendance updated']);
     }
 
@@ -2018,13 +2024,6 @@ final class ApiController
             $ageGroup = null;
         }
 
-        // Generate unique guest code
-        $year = (int) date('Y');
-        $countStmt = $this->pdo->prepare('SELECT COUNT(*) FROM guests WHERE guest_code LIKE ?');
-        $countStmt->execute(["GU-$year-%"]);
-        $count = ((int) $countStmt->fetchColumn()) + 1;
-        $guestCode = "GU-$year-" . str_pad((string)$count, 5, '0', STR_PAD_LEFT);
-
         $user = Auth::user();
         $actorId = isset($user['id']) ? (int) $user['id'] : null;
 
@@ -2040,22 +2039,35 @@ final class ApiController
              )'
         );
 
-        $stmt->execute([
-            ':guest_code' => $guestCode,
-            ':first_name' => $firstName,
-            ':last_name' => $lastName,
-            ':phone' => $phone,
-            ':location' => $location,
-            ':email' => $email ?: null,
-            ':age_group' => $ageGroup ?: null,
-            ':visit_type' => $visitType,
-            ':invited_by_name' => $invitedByName ?: null,
-            ':service_date' => $serviceDate,
-            ':follow_up_date' => $followUpDate ?: null,
-            ':notes' => $notes,
-            ':status' => 'registered',
-            ':created_by' => $actorId,
-        ]);
+        $guestCode = '';
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            $guestCode = $this->nextGuestCode();
+            try {
+                $stmt->execute([
+                    ':guest_code' => $guestCode,
+                    ':first_name' => $firstName,
+                    ':last_name' => $lastName,
+                    ':phone' => $phone,
+                    ':location' => $location,
+                    ':email' => $email ?: null,
+                    ':age_group' => $ageGroup ?: null,
+                    ':visit_type' => $visitType,
+                    ':invited_by_name' => $invitedByName ?: null,
+                    ':service_date' => $serviceDate,
+                    ':follow_up_date' => $followUpDate ?: null,
+                    ':notes' => $notes,
+                    ':status' => 'registered',
+                    ':created_by' => $actorId,
+                ]);
+                break;
+            } catch (\PDOException $e) {
+                if ($attempt < 2 && str_contains($e->getMessage(), 'Duplicate entry')) {
+                    continue;
+                }
+                Response::json(['success' => false, 'message' => 'Guest could not be saved. Please check the guest details and try again.'], 500);
+                return;
+            }
+        }
 
         $guestId = (int) $this->pdo->lastInsertId();
         Audit::log($this->pdo, $actorId, 'attendance', 'create', 'guests', $guestId, null, [
@@ -2082,6 +2094,8 @@ final class ApiController
 
         $search = trim((string) ($_GET['search'] ?? ''));
         $status = trim((string) ($_GET['status'] ?? ''));
+        $month = trim((string) ($_GET['month'] ?? date('Y-m')));
+        $serviceDate = trim((string) ($_GET['service_date'] ?? ''));
         $sortBy = trim((string) ($_GET['sort'] ?? 'service_date'));
         $sortOrder = trim((string) ($_GET['order'] ?? 'DESC'));
 
@@ -2103,6 +2117,22 @@ final class ApiController
 
         $params = [];
 
+        if ($serviceDate !== '') {
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $serviceDate) !== 1) {
+                Response::json(['success' => false, 'message' => 'Invalid service_date format. Use YYYY-MM-DD'], 422);
+                return;
+            }
+            $query .= ' AND service_date = ?';
+            $params[] = $serviceDate;
+        } elseif ($month !== '') {
+            if (preg_match('/^\d{4}-\d{2}$/', $month) !== 1) {
+                Response::json(['success' => false, 'message' => 'Invalid month format. Use YYYY-MM'], 422);
+                return;
+            }
+            $query .= ' AND DATE_FORMAT(service_date, "%Y-%m") = ?';
+            $params[] = $month;
+        }
+
         // Search filter
         if ($search) {
             $query .= ' AND (
@@ -2114,7 +2144,9 @@ final class ApiController
                 LOWER(location) LIKE LOWER(?)
             )';
             $searchTerm = "%$search%";
-            $params = array_fill(0, 6, $searchTerm);
+            for ($i = 0; $i < 6; $i++) {
+                $params[] = $searchTerm;
+            }
         }
 
         // Status filter
@@ -2149,6 +2181,156 @@ final class ApiController
         $this->ensureGuestsTable();
         $stmt=$this->pdo->query("SELECT id,guest_code,first_name,last_name,phone,service_date,follow_up_date,status,visit_type FROM guests WHERE follow_up_date IS NOT NULL AND follow_up_date<=CURRENT_DATE AND status NOT IN ('converted','inactive') ORDER BY follow_up_date ASC,service_date ASC LIMIT 200");
         Response::json(['success'=>true,'message'=>'Guest follow-up queue','data'=>$stmt->fetchAll()]);
+    }
+
+    public function importGuests(): void
+    {
+        if (!Auth::can('members.create')) {
+            Response::json(['success' => false, 'message' => 'No permission to import guests'], 403);
+            return;
+        }
+        $this->ensureGuestsTable();
+
+        if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+            Response::json(['success' => false, 'message' => 'No valid CSV file uploaded.'], 422);
+            return;
+        }
+
+        $file = $_FILES['file'];
+        $ext = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
+        if ($ext !== 'csv') {
+            Response::json(['success' => false, 'message' => 'Only .csv files are supported for guest import.'], 422);
+            return;
+        }
+
+        try {
+            $rows = $this->parseCsv((string) $file['tmp_name']);
+        } catch (\RuntimeException $e) {
+            Response::json(['success' => false, 'message' => $e->getMessage()], 422);
+            return;
+        }
+
+        if (count($rows) < 2) {
+            Response::json(['success' => false, 'message' => 'CSV has no data rows (first row must be header).'], 422);
+            return;
+        }
+
+        $header = array_map(fn($v) => strtolower(trim((string) $v)), $rows[0]);
+        $aliases = [
+            'guest_code' => ['guest_code', 'guest code', 'code'],
+            'first_name' => ['first_name', 'firstname', 'first name', 'jina'],
+            'last_name' => ['last_name', 'lastname', 'last name', 'surname'],
+            'phone' => ['phone', 'phone_number', 'phone number', 'mobile', 'simu'],
+            'email' => ['email', 'barua pepe'],
+            'location' => ['location', 'area', 'address', 'mahali'],
+            'service_date' => ['service_date', 'service date', 'visit_date', 'visit date', 'date'],
+            'visit_type' => ['visit_type', 'visit type', 'type'],
+            'age_group' => ['age_group', 'age group', 'age'],
+            'status' => ['status'],
+            'invited_by_name' => ['invited_by_name', 'invited by', 'invited_by'],
+            'follow_up_date' => ['follow_up_date', 'follow up date', 'follow-up date'],
+            'notes' => ['notes', 'note', 'maelezo'],
+        ];
+
+        $fieldIdx = [];
+        foreach ($aliases as $field => $aliasList) {
+            foreach ($aliasList as $alias) {
+                $pos = array_search($alias, $header, true);
+                if ($pos !== false) {
+                    $fieldIdx[$field] = (int) $pos;
+                    break;
+                }
+            }
+        }
+
+        $user = Auth::user();
+        $actorId = $user['id'] ?? null;
+        $inserted = 0;
+        $skipped = 0;
+        $errors = [];
+        $allowedVisitTypes = ['first_time', 'returning', 'referred'];
+        $allowedAgeGroups = ['child', 'teen', 'youth', 'adult', 'senior'];
+        $allowedStatuses = ['registered', 'visited', 'converted', 'inactive'];
+
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO guests (
+                guest_code, first_name, last_name, phone, location, email,
+                age_group, visit_type, invited_by_name, service_date,
+                follow_up_date, notes, status, created_by
+             ) VALUES (
+                :guest_code, :first_name, :last_name, :phone, :location, :email,
+                :age_group, :visit_type, :invited_by_name, :service_date,
+                :follow_up_date, :notes, :status, :created_by
+             )'
+        );
+
+        foreach (array_slice($rows, 1) as $i => $row) {
+            $rowNum = $i + 2;
+            $get = fn(string $f): string => isset($fieldIdx[$f]) ? trim((string) ($row[$fieldIdx[$f]] ?? '')) : '';
+
+            $firstName = $get('first_name');
+            $lastName = $get('last_name');
+            $phone = $get('phone');
+            $location = $get('location');
+            $serviceDateRaw = $get('service_date');
+
+            if ($firstName === '' || $lastName === '' || $phone === '' || $location === '' || $serviceDateRaw === '') {
+                $errors[] = "Row $rowNum: first_name, last_name, phone, location and service_date are required.";
+                $skipped++;
+                continue;
+            }
+
+            if (strtotime($serviceDateRaw) === false) {
+                $errors[] = "Row $rowNum: service_date is invalid.";
+                $skipped++;
+                continue;
+            }
+
+            $visitType = strtolower($get('visit_type') ?: 'first_time');
+            $ageGroup = strtolower($get('age_group'));
+            $status = strtolower($get('status') ?: 'registered');
+            $followUpRaw = $get('follow_up_date');
+
+            if (!in_array($visitType, $allowedVisitTypes, true)) $visitType = 'first_time';
+            if ($ageGroup !== '' && !in_array($ageGroup, $allowedAgeGroups, true)) $ageGroup = '';
+            if (!in_array($status, $allowedStatuses, true)) $status = 'registered';
+
+            $guestCode = $get('guest_code');
+            if ($guestCode === '') {
+                $guestCode = $this->nextGuestCode();
+            }
+
+            try {
+                $stmt->execute([
+                    ':guest_code' => $guestCode,
+                    ':first_name' => $firstName,
+                    ':last_name' => $lastName,
+                    ':phone' => $phone,
+                    ':location' => $location,
+                    ':email' => $get('email') ?: null,
+                    ':age_group' => $ageGroup ?: null,
+                    ':visit_type' => $visitType,
+                    ':invited_by_name' => $get('invited_by_name') ?: null,
+                    ':service_date' => date('Y-m-d', strtotime($serviceDateRaw)),
+                    ':follow_up_date' => ($followUpRaw !== '' && strtotime($followUpRaw) !== false) ? date('Y-m-d', strtotime($followUpRaw)) : null,
+                    ':notes' => $get('notes') ?: null,
+                    ':status' => $status,
+                    ':created_by' => $actorId,
+                ]);
+                $inserted++;
+            } catch (\PDOException $e) {
+                $errors[] = "Row $rowNum: " . (str_contains($e->getMessage(), 'Duplicate entry') ? 'duplicate guest_code.' : $e->getMessage());
+                $skipped++;
+            }
+        }
+
+        Audit::log($this->pdo, $actorId ? (int) $actorId : null, 'guests', 'import', 'guests', null, null, ['inserted' => $inserted, 'skipped' => $skipped], "Imported $inserted guests from CSV");
+
+        Response::json([
+            'success' => true,
+            'message' => "Guest import complete: $inserted inserted, $skipped skipped.",
+            'data' => ['inserted' => $inserted, 'skipped' => $skipped, 'errors' => array_slice($errors, 0, 20)],
+        ]);
     }
 
 
@@ -2198,6 +2380,58 @@ final class ApiController
                 INDEX idx_guests_location (location)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
+
+        if (!$this->columnExists('guests', 'guest_code')) {
+            $this->pdo->exec('ALTER TABLE guests ADD COLUMN guest_code VARCHAR(50) NULL AFTER id');
+        }
+        if (!$this->columnExists('guests', 'location')) {
+            $this->pdo->exec("ALTER TABLE guests ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '' AFTER phone");
+        }
+        if (!$this->columnExists('guests', 'invited_by_member_id')) {
+            $this->pdo->exec('ALTER TABLE guests ADD COLUMN invited_by_member_id BIGINT UNSIGNED NULL AFTER location');
+        }
+        if (!$this->columnExists('guests', 'invited_by_name')) {
+            $this->pdo->exec('ALTER TABLE guests ADD COLUMN invited_by_name VARCHAR(100) NULL AFTER invited_by_member_id');
+        }
+        if (!$this->columnExists('guests', 'service_date')) {
+            $this->pdo->exec('ALTER TABLE guests ADD COLUMN service_date DATE NULL AFTER invited_by_name');
+        }
+        if (!$this->columnExists('guests', 'visit_type')) {
+            $this->pdo->exec("ALTER TABLE guests ADD COLUMN visit_type ENUM('first_time', 'returning', 'referred') NOT NULL DEFAULT 'first_time' AFTER service_date");
+        }
+        if (!$this->columnExists('guests', 'email')) {
+            $this->pdo->exec('ALTER TABLE guests ADD COLUMN email VARCHAR(150) NULL AFTER visit_type');
+        }
+        if (!$this->columnExists('guests', 'age_group')) {
+            $this->pdo->exec("ALTER TABLE guests ADD COLUMN age_group ENUM('child', 'teen', 'youth', 'adult', 'senior') NULL AFTER email");
+        }
+        if (!$this->columnExists('guests', 'notes')) {
+            $this->pdo->exec('ALTER TABLE guests ADD COLUMN notes TEXT NULL AFTER age_group');
+        }
+        if (!$this->columnExists('guests', 'status')) {
+            $this->pdo->exec("ALTER TABLE guests ADD COLUMN status ENUM('registered', 'visited', 'converted', 'inactive') NOT NULL DEFAULT 'registered' AFTER notes");
+        }
+        if (!$this->columnExists('guests', 'follow_up_date')) {
+            $this->pdo->exec('ALTER TABLE guests ADD COLUMN follow_up_date DATE NULL AFTER status');
+        }
+        if (!$this->columnExists('guests', 'created_by')) {
+            $this->pdo->exec('ALTER TABLE guests ADD COLUMN created_by BIGINT UNSIGNED NULL AFTER follow_up_date');
+        }
+        if (!$this->columnExists('guests', 'created_at')) {
+            $this->pdo->exec('ALTER TABLE guests ADD COLUMN created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER created_by');
+        }
+        if (!$this->columnExists('guests', 'updated_at')) {
+            $this->pdo->exec('ALTER TABLE guests ADD COLUMN updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER created_at');
+        }
+    }
+
+    private function nextGuestCode(): string
+    {
+        $year = (int) date('Y');
+        $stmt = $this->pdo->prepare('SELECT COALESCE(MAX(CAST(SUBSTRING(guest_code, 9) AS UNSIGNED)), 0) + 1 FROM guests WHERE guest_code LIKE ?');
+        $stmt->execute(["GU-$year-%"]);
+        $next = max(1, (int) $stmt->fetchColumn());
+        return "GU-$year-" . str_pad((string) $next, 5, '0', STR_PAD_LEFT);
     }
 
     /* ───── Assets ───── */

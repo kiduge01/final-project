@@ -86,6 +86,94 @@ body {
     background-color: var(--cms-primary) !important;
 }
 
+button.bg-royal-600,
+a.bg-royal-600,
+button.bg-royal-700,
+a.bg-royal-700,
+button.bg-royal-800,
+a.bg-royal-800,
+button.bg-primary-600,
+a.bg-primary-600,
+button.bg-primary-700,
+a.bg-primary-700,
+button.bg-emerald-600,
+a.bg-emerald-600,
+button.bg-emerald-700,
+a.bg-emerald-700,
+button.bg-teal-600,
+a.bg-teal-600,
+button.bg-teal-700,
+a.bg-teal-700,
+button.bg-red-600,
+a.bg-red-600,
+button.bg-red-700,
+a.bg-red-700,
+button.bg-dawn-600,
+a.bg-dawn-600,
+button.bg-dawn-700,
+a.bg-dawn-700,
+button.bg-blue-600,
+a.bg-blue-600,
+button.bg-blue-700,
+a.bg-blue-700 {
+    color: #fff !important;
+}
+
+button[class*="bg-"][class*="-600"],
+a[class*="bg-"][class*="-600"],
+button[class*="bg-"][class*="-700"],
+a[class*="bg-"][class*="-700"],
+button[class*="bg-"][class*="-800"],
+a[class*="bg-"][class*="-800"],
+button[class*="bg-"][class*="-900"],
+a[class*="bg-"][class*="-900"] {
+    color: #fff !important;
+}
+
+button.bg-royal-600 *,
+a.bg-royal-600 *,
+button.bg-royal-700 *,
+a.bg-royal-700 *,
+button.bg-royal-800 *,
+a.bg-royal-800 *,
+button.bg-primary-600 *,
+a.bg-primary-600 *,
+button.bg-primary-700 *,
+a.bg-primary-700 *,
+button.bg-emerald-600 *,
+a.bg-emerald-600 *,
+button.bg-emerald-700 *,
+a.bg-emerald-700 *,
+button.bg-teal-600 *,
+a.bg-teal-600 *,
+button.bg-teal-700 *,
+a.bg-teal-700 *,
+button.bg-red-600 *,
+a.bg-red-600 *,
+button.bg-red-700 *,
+a.bg-red-700 *,
+button.bg-dawn-600 *,
+a.bg-dawn-600 *,
+button.bg-dawn-700 *,
+a.bg-dawn-700 *,
+button.bg-blue-600 *,
+a.bg-blue-600 *,
+button.bg-blue-700 *,
+a.bg-blue-700 * {
+    color: inherit !important;
+}
+
+button[class*="bg-"][class*="-600"] *,
+a[class*="bg-"][class*="-600"] *,
+button[class*="bg-"][class*="-700"] *,
+a[class*="bg-"][class*="-700"] *,
+button[class*="bg-"][class*="-800"] *,
+a[class*="bg-"][class*="-800"] *,
+button[class*="bg-"][class*="-900"] *,
+a[class*="bg-"][class*="-900"] * {
+    color: inherit !important;
+}
+
 .text-royal-600,
 .text-royal-700,
 .text-primary-600 {

@@ -84,3 +84,45 @@ header{z-index:40!important}
   .ui-kpis{grid-template-columns:minmax(0,1fr)!important}
 }
 @media(max-width:1023px){body.sidebar-open{overflow:hidden!important;touch-action:none}}
+
+/* Keep action buttons readable even when page utilities mix dark backgrounds
+   with muted or brand-colored text classes. */
+button[class*="bg-"][class*="-600"],
+a[class*="bg-"][class*="-600"],
+button[class*="bg-"][class*="-700"],
+a[class*="bg-"][class*="-700"],
+button[class*="bg-"][class*="-800"],
+a[class*="bg-"][class*="-800"],
+button[class*="bg-"][class*="-900"],
+a[class*="bg-"][class*="-900"],
+.ui-btn-primary,
+.ui-btn-purple,
+.settings-tab:not(.is-active) {
+  color:#fff!important;
+}
+
+button[class*="bg-"][class*="-600"] *,
+a[class*="bg-"][class*="-600"] *,
+button[class*="bg-"][class*="-700"] *,
+a[class*="bg-"][class*="-700"] *,
+button[class*="bg-"][class*="-800"] *,
+a[class*="bg-"][class*="-800"] *,
+button[class*="bg-"][class*="-900"] *,
+a[class*="bg-"][class*="-900"] *,
+.ui-btn-primary *,
+.ui-btn-purple *,
+.settings-tab:not(.is-active) * {
+  color:inherit!important;
+}
+
+.settings-tab.is-active {
+  color:#3344a5!important;
+}
+
+main button:not(.ui-btn-secondary):not(.secondary):not([class*="bg-white"]):not([class*="bg-mist-"]):not([class*="bg-gray-"]):not([class*="bg-slate-"]):not(.settings-tab.is-active) {
+  color:#fff!important;
+}
+
+main button:not(.ui-btn-secondary):not(.secondary):not([class*="bg-white"]):not([class*="bg-mist-"]):not([class*="bg-gray-"]):not([class*="bg-slate-"]):not(.settings-tab.is-active) * {
+  color:inherit!important;
+}

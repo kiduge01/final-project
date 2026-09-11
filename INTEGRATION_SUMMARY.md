@@ -252,3 +252,6 @@ id  | name     | head_email              | is_active
 **Status:** ✅ **Ready to Test**
 
 All components are integrated and ready. Go to Settings → Departments → Add/Edit Department to test!
+
+
+sms api: swl_live_U37Gxg9upFQD55n223qe3bZnuzT6y747hxgZMbg8yq2TQjRo

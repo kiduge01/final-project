@@ -143,6 +143,32 @@ button.secondary {
     border: 1px solid var(--primary);
 }
 
+button[class*="bg-"][class*="-600"],
+a[class*="bg-"][class*="-600"],
+button[class*="bg-"][class*="-700"],
+a[class*="bg-"][class*="-700"],
+button[class*="bg-"][class*="-800"],
+a[class*="bg-"][class*="-800"],
+button[class*="bg-"][class*="-900"],
+a[class*="bg-"][class*="-900"],
+.ui-btn-primary,
+.ui-btn-purple {
+    color: #fff !important;
+}
+
+button[class*="bg-"][class*="-600"] *,
+a[class*="bg-"][class*="-600"] *,
+button[class*="bg-"][class*="-700"] *,
+a[class*="bg-"][class*="-700"] *,
+button[class*="bg-"][class*="-800"] *,
+a[class*="bg-"][class*="-800"] *,
+button[class*="bg-"][class*="-900"] *,
+a[class*="bg-"][class*="-900"] *,
+.ui-btn-primary *,
+.ui-btn-purple * {
+    color: inherit !important;
+}
+
 .stack {
     display: grid;
     gap: 12px;

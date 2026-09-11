@@ -24,8 +24,74 @@
     <div class="flex flex-wrap gap-2">
         <button id="btn-export-csv" class="px-4 py-2 rounded-xl bg-mist-100 text-mist-700 hover:bg-mist-200 text-sm font-medium">&#11015; Export CSV</button>
         <button id="btn-open-import" class="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-semibold">&#8679; Import Excel / CSV</button>
-        <button id="btn-open-add" class="px-4 py-2 rounded-xl bg-royal-600 text-white hover:bg-royal-700 text-sm font-semibold">+ Add Member</button>
+        <button id="btn-open-add" class="px-4 py-2 rounded-xl bg-royal-600 text-white hover:bg-royal-700 text-sm font-semibold">+ Register</button>
     </div>
+</div>
+
+<div id="member-form-panel" class="hidden bg-white rounded-2xl border border-mist-200 shadow-sm p-5 mb-6">
+    <div class="flex items-center justify-between gap-3 mb-4">
+        <div>
+            <h3 id="modal-title" class="text-lg font-heading font-semibold text-royal-900">Register New Member</h3>
+            <p id="member-form-subtitle" class="text-sm text-mist-600">Capture a member's contact details and church profile.</p>
+        </div>
+        <button type="button" id="btn-close-member-modal" class="text-sm text-mist-500 hover:text-mist-700">Close</button>
+    </div>
+
+    <form id="member-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <input type="hidden" id="edit-member-id" value="">
+        <div>
+            <label class="block text-xs font-semibold text-mist-600 mb-1">First Name <span class="text-red-500">*</span></label>
+            <input name="first_name" required placeholder="First name" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-mist-600 mb-1">Last Name <span class="text-red-500">*</span></label>
+            <input name="last_name" required placeholder="Last name / Surname" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-mist-600 mb-1">Phone <span class="text-red-500">*</span></label>
+            <input name="phone" required placeholder="+255 7XX XXX XXX" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-mist-600 mb-1">Email</label>
+            <input type="email" name="email" placeholder="email@example.com" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-mist-600 mb-1">Location</label>
+            <input name="physical_address" placeholder="Area / Location" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-mist-600 mb-1">Joined Date</label>
+            <input type="date" name="join_date" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-mist-600 mb-1">Member Code <span class="text-mist-400 font-normal">(auto if blank)</span></label>
+            <input name="member_code" placeholder="MBR-2026-0001" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm font-mono">
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-mist-600 mb-1">Gender <span class="text-red-500">*</span></label>
+            <select name="gender" required class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+                <option value="">Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-mist-600 mb-1">Marital Status</label>
+            <select name="marital_status" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
+                <option value="">Select</option>
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="widowed">Widowed</option>
+                <option value="divorced">Divorced</option>
+            </select>
+        </div>
+        <div class="md:col-span-2 lg:col-span-3 flex justify-end gap-3 pt-2">
+            <button type="button" id="btn-cancel-member" class="px-4 py-2.5 rounded-xl bg-mist-100 text-mist-700 hover:bg-mist-200 text-sm font-medium">Cancel</button>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-semibold">Save Member</button>
+        </div>
+    </form>
+    <div id="member-form-feedback" class="hidden mt-3 rounded-xl px-3 py-2 text-sm"></div>
 </div>
 
 <!--  Stats Bar  -->
@@ -111,7 +177,13 @@
         <p class="text-mist-600 text-sm mt-0.5">Track and manage all guest registrations.</p>
     </div>
     <div class="flex flex-wrap gap-2">
+        <label class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-mist-200 text-xs font-semibold text-mist-600">
+            Month
+            <input id="filter-guests-month" type="month" class="border-0 bg-transparent p-0 text-sm text-mist-800 focus:ring-0">
+        </label>
         <button id="btn-export-guests-csv" class="px-4 py-2 rounded-xl bg-mist-100 text-mist-700 hover:bg-mist-200 text-sm font-medium">&#11015; Export CSV</button>
+        <button id="btn-import-guests-csv" class="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-semibold">&#8679; Import CSV</button>
+        <input id="guests-csv-file" type="file" accept=".csv,text/csv" class="hidden">
         <button id="btn-toggle-guest-register" class="px-4 py-2 rounded-xl bg-royal-600 text-white hover:bg-royal-700 text-sm font-semibold">+ Register Guest</button>
     </div>
 </div>
@@ -194,7 +266,7 @@
 <div id="guests-stats-bar" class="space-y-3 mb-6">
     <!-- Status Row -->
     <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <div class="bg-white rounded-2xl border border-mist-200 p-4"><p class="text-xs text-mist-500 uppercase tracking-wide">Total</p><p id="stat-guests-total" class="text-2xl font-bold text-royal-800 mt-1">--</p></div>
+        <div class="bg-white rounded-2xl border border-mist-200 p-4"><p class="text-xs text-mist-500 uppercase tracking-wide">Monthly Total</p><p id="stat-guests-total" class="text-2xl font-bold text-royal-800 mt-1">--</p></div>
         <div class="bg-white rounded-2xl border border-mist-200 p-4"><p class="text-xs text-emerald-600 uppercase tracking-wide">Registered</p><p id="stat-guests-registered" class="text-2xl font-bold text-emerald-700 mt-1">--</p></div>
         <div class="bg-white rounded-2xl border border-mist-200 p-4"><p class="text-xs text-blue-600 uppercase tracking-wide">Visited</p><p id="stat-guests-visited" class="text-2xl font-bold text-blue-700 mt-1">--</p></div>
         <div class="bg-white rounded-2xl border border-mist-200 p-4"><p class="text-xs text-purple-600 uppercase tracking-wide">Converted</p><p id="stat-guests-converted" class="text-2xl font-bold text-purple-700 mt-1">--</p></div>
@@ -257,88 +329,65 @@
 </div>
 <!-- End Guests Tab -->
 
-<!-- 
-     ADD / EDIT MEMBER MODAL
- -->
-<div id="member-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-start justify-center min-h-screen pt-10 pb-10 px-4">
-        <div class="fixed inset-0 bg-black/40" id="member-modal-bg"></div>
-        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-10">
-            <div class="flex items-center justify-between px-6 py-4 border-b border-mist-100">
-                <h3 id="modal-title" class="text-lg font-heading font-semibold text-royal-900">Add New Member</h3>
-                <button id="btn-close-member-modal" class="p-1.5 rounded-lg hover:bg-mist-100 text-mist-500">&#10005;</button>
-            </div>
-            <form id="member-form" class="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="hidden" id="edit-member-id" value="">
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">First Name <span class="text-red-500">*</span></label>
-                    <input name="first_name" required placeholder="First name" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Last Name <span class="text-red-500">*</span></label>
-                    <input name="last_name" required placeholder="Last name / Surname" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Location</label>
-                    <input name="physical_address" placeholder="Area / Location" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Joined Date</label>
-                    <input type="date" name="join_date" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Member Code <span class="text-mist-400 font-normal">(auto if blank)</span></label>
-                    <input name="member_code" placeholder="MBR-2026-0001" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm font-mono">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Gender <span class="text-red-500">*</span></label>
-                    <select name="gender" required class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                        <option value="">Select</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Marital Status</label>
-                    <select name="marital_status" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                        <option value="">Select</option>
-                        <option value="single">Single</option>
-                        <option value="married">Married</option>
-                        <option value="widowed">Widowed</option>
-                        <option value="divorced">Divorced</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Phone <span class="text-red-500">*</span></label>
-                    <input name="phone" required placeholder="+255 7XX XXX XXX" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-semibold text-mist-600 mb-1">Email</label>
-                    <input type="email" name="email" placeholder="email@example.com" class="w-full rounded-xl border border-mist-200 px-3 py-2.5 text-sm">
-                </div>
-                <div class="md:col-span-2 flex justify-end gap-3 pt-2 border-t border-mist-100">
-                    <button type="button" id="btn-cancel-member" class="px-4 py-2.5 rounded-xl bg-mist-100 text-mist-700 hover:bg-mist-200 text-sm font-medium">Cancel</button>
-                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-royal-600 text-white hover:bg-royal-700 text-sm font-semibold">Save Member</button>
-                </div>
-            </form>
-            <div id="member-form-feedback" class="hidden mx-6 mb-4 rounded-xl px-3 py-2 text-sm"></div>
-        </div>
-    </div>
-</div>
+<style>
+    #guest-modal {
+        z-index: 9999 !important;
+    }
+
+    #guest-modal-bg {
+        z-index: 0 !important;
+    }
+
+    #guest-modal-panel {
+        position: relative;
+        z-index: 1;
+    }
+
+    body.modal-open {
+        overflow: hidden;
+    }
+
+    #guest-modal-shell {
+        min-height: 100dvh;
+        padding: 5rem 1rem 1rem;
+    }
+
+    #guest-modal-panel {
+        max-height: calc(100dvh - 6rem);
+    }
+
+    #guest-details-content {
+        max-height: calc(100dvh - 11rem);
+    }
+
+    @media (min-width: 768px) {
+        #guest-modal-shell {
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        #guest-modal-panel {
+            max-height: calc(100dvh - 3rem);
+        }
+
+        #guest-details-content {
+            max-height: calc(100dvh - 8rem);
+        }
+    }
+</style>
 
 <!-- 
      GUEST DETAILS MODAL
  -->
 <div id="guest-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-start justify-center min-h-screen pt-10 pb-10 px-4">
+    <div id="guest-modal-shell" class="flex items-start justify-center">
         <div class="fixed inset-0 bg-black/40" id="guest-modal-bg"></div>
-        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-10">
+        <div id="guest-modal-panel" class="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden">
             <div class="flex items-center justify-between px-6 py-4 border-b border-mist-100">
-                <h3 class="text-lg font-heading font-semibold text-royal-900">Guest Details</h3>
+                <h3 id="details-modal-title" class="text-lg font-heading font-semibold text-royal-900">Guest Details</h3>
                 <button id="btn-close-guest-modal" class="p-1.5 rounded-lg hover:bg-mist-100 text-mist-500">&#10005;</button>
             </div>
-            <div id="guest-details-content" class="px-6 py-5 max-h-96 overflow-y-auto">
+            <div id="guest-details-content" class="px-6 py-5 overflow-y-auto">
                 <!-- Content loaded dynamically -->
             </div>
         </div>
@@ -349,6 +398,49 @@
 const MB = '<?= $B ?>';
 let allMembers = [];
 let allGuests = [];
+const guestMonthFilter = document.getElementById('filter-guests-month');
+function currentMonthValue() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+if (guestMonthFilter) {
+    guestMonthFilter.value = currentMonthValue();
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.classList.add('hidden');
+
+    const hasOpenModal = Array.from(document.querySelectorAll('#guest-modal'))
+        .some(el => !el.classList.contains('hidden'));
+    if (!hasOpenModal) {
+        document.body.classList.remove('modal-open');
+    }
+}
+
+function showMemberFormPanel() {
+    const panel = document.getElementById('member-form-panel');
+    if (!panel) return;
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function hideMemberFormPanel() {
+    const panel = document.getElementById('member-form-panel');
+    if (!panel) return;
+    panel.classList.add('hidden');
+    document.getElementById('member-form').reset();
+    document.getElementById('edit-member-id').value = '';
+    hideFeedback();
+}
 
 /* ━━━━━━━━━━━━━━ TAB SWITCHING ━━━━━━━━━━━━━━ */
 function switchTab(tabName) {
@@ -537,17 +629,19 @@ document.getElementById('btn-export-csv').addEventListener('click', () => {
 /*  ADD MEMBER MODAL  */
 function openAddModal() {
     document.getElementById('edit-member-id').value = '';
-    document.getElementById('modal-title').textContent = 'Add New Member';
+    document.getElementById('modal-title').textContent = 'Register New Member';
+    document.getElementById('member-form-subtitle').textContent = "Capture a member's contact details and church profile.";
     document.getElementById('member-form').reset();
     hideFeedback();
-    document.getElementById('member-modal').classList.remove('hidden');
+    showMemberFormPanel();
 }
 
 function openEditModal(id) {
     const m = allMembers.find(x => x.id === id);
     if (!m) return;
     document.getElementById('edit-member-id').value = id;
-    document.getElementById('modal-title').textContent = 'Edit Member  ' + m.first_name + ' ' + m.last_name;
+    document.getElementById('modal-title').textContent = 'Edit Member - ' + m.first_name + ' ' + m.last_name;
+    document.getElementById('member-form-subtitle').textContent = 'Update the selected member record.';
     const f = document.getElementById('member-form');
     const fields = ['first_name','last_name','physical_address','join_date','member_code','gender','marital_status','phone','email'];
     fields.forEach(name => {
@@ -556,10 +650,10 @@ function openEditModal(id) {
     });
     // zones removed
     hideFeedback();
-    document.getElementById('member-modal').classList.remove('hidden');
+    showMemberFormPanel();
 }
 
-function closeMemberModal() { document.getElementById('member-modal').classList.add('hidden'); }
+function closeMemberModal() { hideMemberFormPanel(); }
 
 /*  View Member Details  */
 function viewMemberDetails(id) {
@@ -568,7 +662,7 @@ function viewMemberDetails(id) {
     
     const details = `
         <div class="space-y-4 text-sm">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><p class="text-xs text-mist-500 uppercase">Member Code</p><p class="font-semibold text-royal-800">${member.member_code || '-'}</p></div>
                 <div><p class="text-xs text-mist-500 uppercase">Full Name</p><p class="font-semibold text-royal-800">${member.first_name} ${member.last_name}</p></div>
                 <div><p class="text-xs text-mist-500 uppercase">Gender</p><p class="capitalize text-mist-700">${member.gender || '-'}</p></div>
@@ -581,46 +675,49 @@ function viewMemberDetails(id) {
                 <div><p class="text-xs text-mist-500 uppercase">Baptism Date</p><p class="text-mist-700">${member.baptism_date ? member.baptism_date.substring(0,10) : '-'}</p></div>
                 <!-- Zone removed -->
                 <div><p class="text-xs text-mist-500 uppercase">Region</p><p class="text-mist-700">${member.region || '-'}</p></div>
-                <div class="col-span-2"><p class="text-xs text-mist-500 uppercase">Ward / District</p><p class="text-mist-700">${member.ward || '-'} / ${member.district || '-'}</p></div>
-                <div class="col-span-2"><p class="text-xs text-mist-500 uppercase">Church Services</p><p class="text-mist-700">${member.church_services || '-'}</p></div>
-                <div class="col-span-2"><p class="text-xs text-mist-500 uppercase">Notes</p><p class="text-mist-700">${member.notes || '-'}</p></div>
+                <div class="sm:col-span-2"><p class="text-xs text-mist-500 uppercase">Ward / District</p><p class="text-mist-700">${member.ward || '-'} / ${member.district || '-'}</p></div>
+                <div class="sm:col-span-2"><p class="text-xs text-mist-500 uppercase">Church Services</p><p class="text-mist-700">${member.church_services || '-'}</p></div>
+                <div class="sm:col-span-2"><p class="text-xs text-mist-500 uppercase">Notes</p><p class="text-mist-700">${member.notes || '-'}</p></div>
             </div>
         </div>
     `;
     
+    document.getElementById('details-modal-title').textContent = 'Member Details';
     document.getElementById('guest-details-content').innerHTML = details;
-    document.getElementById('guest-modal').classList.remove('hidden');
+    openModal('guest-modal');
 }
 
 /*  Delete Member  */
-function deleteMember(id) {
+async function deleteMember(id) {
     const member = allMembers.find(x => x.id === id);
     if (!member) return;
     
     if (!confirm(`Are you sure you want to delete ${member.first_name} ${member.last_name}? This action cannot be undone.`)) return;
     
-    fetch(MB + '/api/members/' + id, { method: 'DELETE' })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                alert('Member deleted successfully');
-                loadMembers();
-            } else {
-                alert('Error: ' + (data.message || 'Failed to delete member'));
-            }
-        })
-        .catch(err => { console.error(err); alert('Error deleting member'); });
+    try {
+        const res = await fetch(MB + '/api/v1/members/' + id, { method: 'DELETE' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+            alert(data.message || 'Failed to delete member.');
+            return;
+        }
+
+        alert(data.message || 'Member deleted successfully');
+        await Promise.all([loadStats(), loadMembers()]);
+    } catch (err) {
+        console.error(err);
+        alert('Network error while deleting member. Please try again.');
+    }
 }
 
 document.getElementById('btn-open-add').addEventListener('click', openAddModal);
 document.getElementById('btn-close-member-modal').addEventListener('click', closeMemberModal);
 document.getElementById('btn-cancel-member').addEventListener('click', closeMemberModal);
-document.getElementById('member-modal-bg').addEventListener('click', closeMemberModal);
 
 function showFeedback(msg, isError) {
     const el = document.getElementById('member-form-feedback');
     el.textContent = msg;
-    el.className = 'mx-6 mb-4 rounded-xl px-3 py-2 text-sm ' + (isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200');
+    el.className = 'mt-3 rounded-xl px-3 py-2 text-sm ' + (isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200');
     el.classList.remove('hidden');
 }
 function hideFeedback() { document.getElementById('member-form-feedback').classList.add('hidden'); }
@@ -653,11 +750,30 @@ document.getElementById('member-form').addEventListener('submit', async e => {
 Promise.all([loadStats(), loadMembers()]);
 // Agent/task redirect support
 const memberTaskParams = new URLSearchParams(window.location.search);
+const expectedGuestTarget = {
+    serviceDate: memberTaskParams.get('service_date') || '',
+    count: Number(memberTaskParams.get('expected_guests') || 0)
+};
 if (memberTaskParams.get('tab') === 'guests') document.getElementById('btn-tab-guests')?.click();
 if (memberTaskParams.get('action') === 'create') setTimeout(() => document.getElementById('btn-open-add')?.click(), 50);
 if (memberTaskParams.get('action') === 'create-guest') {
     document.getElementById('btn-tab-guests')?.click();
-    setTimeout(() => document.getElementById('btn-toggle-guest-register')?.click(), 80);
+    setTimeout(async () => {
+        const panel = document.getElementById('guest-register-panel');
+        const form = document.getElementById('guest-register-form');
+        const serviceDate = memberTaskParams.get('service_date') || '';
+
+        panel?.classList.remove('hidden');
+        if (serviceDate) {
+            const monthInput = document.getElementById('filter-guests-month');
+            const dateInput = form?.querySelector('[name="service_date"]');
+            if (monthInput) monthInput.value = serviceDate.slice(0, 7);
+            if (dateInput) dateInput.value = serviceDate;
+            await loadGuestsData();
+            showExpectedGuestProgress();
+        }
+        panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
 }
 
 
@@ -666,9 +782,11 @@ if (memberTaskParams.get('action') === 'create-guest') {
 async function loadGuestsData() {
     const search = document.getElementById('filter-guests-search').value.trim();
     const status = document.getElementById('filter-guests-status').value;
+    const month = document.getElementById('filter-guests-month').value;
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (status) params.set('status', status);
+    if (month) params.set('month', month);
     
     try {
         const res = await fetch(MB + '/api/v1/attendance/guests?' + params.toString());
@@ -759,7 +877,7 @@ function renderGuests(list) {
         });
     });
     document.querySelectorAll('.edit-guest-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); editGuest(Number(btn.dataset.id)); }));
-    document.querySelectorAll('.delete-guest-btn').forEach(btn => btn.addEventListener('click', async e => { e.stopPropagation(); if(!confirm('Delete this guest?')) return; const res=await fetch(MB+'/api/v1/guests/'+btn.dataset.id,{method:'DELETE'}); const data=await res.json(); alert(data.message||'Done'); if(data.success) loadGuestsData(); }));
+    document.querySelectorAll('.delete-guest-btn').forEach(btn => btn.addEventListener('click', async e => { e.stopPropagation(); if(!confirm('Delete this guest?')) return; const res=await fetch(MB+'/api/v1/guests/'+btn.dataset.id,{method:'DELETE'}); const data=await res.json(); alert(data.message||'Done'); if(data.success) { await loadGuestsData(); showExpectedGuestProgress(); } }));
 }
 
 function showGuestDetails(guestId) {
@@ -768,7 +886,7 @@ function showGuestDetails(guestId) {
     
     const detailsHTML = `
         <div class="space-y-3 text-sm">
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <p class="text-xs text-mist-500 font-semibold">Guest Code</p>
                     <p class="font-mono text-royal-700 font-semibold">${guest.guest_code}</p>
@@ -791,7 +909,7 @@ function showGuestDetails(guestId) {
                     <p class="text-xs text-mist-500 font-semibold">Full Name</p>
                     <p>${guest.first_name} ${guest.last_name}</p>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <p class="text-xs text-mist-500 font-semibold">Phone</p>
                         <p class="font-mono">${guest.phone || '-'}</p>
@@ -801,7 +919,7 @@ function showGuestDetails(guestId) {
                         <p class="text-xs">${guest.email || '-'}</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <p class="text-xs text-mist-500 font-semibold">Location</p>
                         <p>${guest.location || '-'}</p>
@@ -836,29 +954,39 @@ function showGuestDetails(guestId) {
         </div>
     `;
     
+    document.getElementById('details-modal-title').textContent = 'Guest Details';
     document.getElementById('guest-details-content').innerHTML = detailsHTML;
-    document.getElementById('guest-modal').classList.remove('hidden');
+    openModal('guest-modal');
 }
 
 function closeGuestModal() {
-    document.getElementById('guest-modal').classList.add('hidden');
+    closeModal('guest-modal');
 }
 
 document.getElementById('btn-close-guest-modal').addEventListener('click', closeGuestModal);
 document.getElementById('guest-modal-bg').addEventListener('click', closeGuestModal);
 
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    closeMemberModal();
+    closeGuestModal();
+});
+
 /* Guest Filters */
 document.getElementById('filter-guests-search').addEventListener('input', () => {
-    if (allGuests.length > 0) loadGuestsData();
+    loadGuestsData();
 });
 
 document.getElementById('filter-guests-status').addEventListener('change', () => {
-    if (allGuests.length > 0) loadGuestsData();
+    loadGuestsData();
 });
+
+document.getElementById('filter-guests-month').addEventListener('change', loadGuestsData);
 
 document.getElementById('btn-clear-guest-filters').addEventListener('click', () => {
     document.getElementById('filter-guests-search').value = '';
     document.getElementById('filter-guests-status').value = '';
+    document.getElementById('filter-guests-month').value = currentMonthValue();
     loadGuestsData();
 });
 
@@ -880,10 +1008,48 @@ function setGuestRegisterFeedback(message, isError = false) {
     guestRegisterFeedback.classList.remove('hidden');
 }
 
+function setGuestRegisterNotice(message, tone = 'success') {
+    const classes = {
+        success: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+        warning: 'bg-amber-50 text-amber-800 border border-amber-200',
+        info: 'bg-blue-50 text-blue-700 border border-blue-200'
+    };
+    guestRegisterFeedback.textContent = message;
+    guestRegisterFeedback.className = 'mt-3 rounded-xl px-3 py-2 text-sm ' + (classes[tone] || classes.info);
+    guestRegisterFeedback.classList.remove('hidden');
+}
+
+function getExpectedGuestProgress() {
+    if (!expectedGuestTarget.serviceDate) return null;
+    const registered = allGuests.filter(g => String(g.service_date || '').slice(0, 10) === expectedGuestTarget.serviceDate).length;
+    const expected = Math.max(0, expectedGuestTarget.count);
+    return {
+        expected,
+        registered,
+        remaining: Math.max(expected - registered, 0)
+    };
+}
+
+function showExpectedGuestProgress() {
+    const progress = getExpectedGuestProgress();
+    if (!progress) return null;
+
+    if (progress.expected <= 0) {
+        setGuestRegisterNotice('Attendance was recorded with 0 guests for this service. No guest details are required.', 'info');
+    } else if (progress.remaining > 0) {
+        setGuestRegisterNotice(`Attendance recorded ${progress.expected} guest(s). ${progress.registered} registered so far; add ${progress.remaining} more guest record(s).`, 'warning');
+    } else {
+        setGuestRegisterNotice(`Guest registration reached the attendance count: ${progress.registered}/${progress.expected}.`, 'success');
+    }
+
+    return progress;
+}
+
 document.getElementById('btn-toggle-guest-register').addEventListener('click', () => {
     guestRegisterPanel.classList.toggle('hidden');
     if (!guestRegisterPanel.classList.contains('hidden')) {
-        guestRegisterForm.querySelector('[name="service_date"]').value = new Date().toISOString().slice(0, 10);
+        guestRegisterForm.querySelector('[name="service_date"]').value = expectedGuestTarget.serviceDate || new Date().toISOString().slice(0, 10);
+        showExpectedGuestProgress();
     }
 });
 
@@ -920,14 +1086,55 @@ guestRegisterForm.addEventListener('submit', async (e) => {
             return;
         }
 
-        setGuestRegisterFeedback(editingGuestId ? 'Guest updated successfully.' : 'Guest registered successfully.', false);
+        const wasEditingGuest = Boolean(editingGuestId);
+        setGuestRegisterFeedback(wasEditingGuest ? 'Guest updated successfully.' : 'Guest registered successfully.', false);
         editingGuestId = null;
         e.target.reset();
-        guestRegisterPanel.classList.add('hidden');
+        if (expectedGuestTarget.serviceDate) {
+            e.target.querySelector('[name="service_date"]').value = expectedGuestTarget.serviceDate;
+        }
         await loadGuestsData();
+        const progress = showExpectedGuestProgress();
+        if (progress && progress.expected > 0 && progress.remaining > 0 && !wasEditingGuest) {
+            guestRegisterPanel.classList.remove('hidden');
+            guestRegisterPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (!progress || progress.remaining <= 0) {
+            guestRegisterPanel.classList.add('hidden');
+        }
     } catch (err) {
         console.error('Guest registration failed:', err);
         setGuestRegisterFeedback('Network error. Please try again.', true);
+    }
+});
+
+document.getElementById('btn-import-guests-csv').addEventListener('click', () => {
+    document.getElementById('guests-csv-file').click();
+});
+
+document.getElementById('guests-csv-file').addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append('file', file);
+
+    try {
+        const res = await fetch(MB + '/api/v1/guests/import', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+            alert(data.message || 'Failed to import guests.');
+            return;
+        }
+
+        const errors = data.data?.errors?.length ? '\n\nSome rows were skipped:\n' + data.data.errors.join('\n') : '';
+        alert((data.message || 'Guest import complete.') + errors);
+        await loadGuestsData();
+        showExpectedGuestProgress();
+    } catch (err) {
+        console.error('Guest import failed:', err);
+        alert('Network error while importing guests.');
+    } finally {
+        e.target.value = '';
     }
 });
 
@@ -942,4 +1149,3 @@ document.getElementById('btn-export-guests-csv').addEventListener('click', () =>
     a.click();
 });
 </script>
-
