@@ -1,0 +1,542 @@
+﻿<?php
+$B = $baseUrl ?? '';
+$user = $_SESSION['user'] ?? [];
+$canCreate   = \App\Core\Auth::can('procurement.create');
+$canApprove  = \App\Core\Auth::can('procurement.approve');
+$canComplete = \App\Core\Auth::can('procurement.complete');
+?>
+
+<div class="procurement-module max-w-7xl mx-auto">
+
+<!-- Header -->
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Procurement</h1>
+        <p class="text-gray-500 mt-1">Purchase requests linked to approved budgets</p>
+    </div>
+    <?php if ($canCreate): ?>
+    <button onclick="openNewPRModal()" class="px-4 py-2.5 bg-royal-600 hover:bg-royal-700 text-white text-sm font-semibold rounded-xl shadow-sm flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        New Request
+    </button>
+    <?php endif; ?>
+</div>
+
+<!-- Sub-tabs -->
+<div class="border-b border-gray-200 mb-5">
+    <nav class="flex gap-1 -mb-px">
+        <button data-ptab="requests" class="ptab ptab-active px-4 py-2.5 text-sm font-semibold border-b-2 border-royal-600 text-royal-700">All Requests</button>
+        <button data-ptab="approved" class="ptab px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700">Approved Orders</button>
+        <button data-ptab="completed" class="ptab px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700">Completed</button>
+    </nav>
+</div>
+
+<!-- Tab: All Requests -->
+<div id="ptab-requests" class="ptab-panel">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50"><tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Request #</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Budget</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Purpose</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Cost</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Items</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Requested By</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                </tr></thead>
+                <tbody id="pr-all-tbody" class="divide-y divide-gray-100"></tbody>
+            </table>
+        </div>
+        <div id="pr-all-empty" class="hidden px-5 py-12 text-center text-gray-400">
+            <p class="font-medium">No procurement requests yet</p>
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Approved Orders -->
+<div id="ptab-approved" class="ptab-panel hidden">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50"><tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Request #</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Budget</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Purpose</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Cost</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Vendor</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Approved By</th>
+                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                </tr></thead>
+                <tbody id="pr-approved-tbody" class="divide-y divide-gray-100"></tbody>
+            </table>
+        </div>
+        <div id="pr-approved-empty" class="hidden px-5 py-12 text-center text-gray-400">No approved orders</div>
+    </div>
+</div>
+
+<!-- Tab: Completed -->
+<div id="ptab-completed" class="ptab-panel hidden">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50"><tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Request #</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Budget</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Purpose</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Cost</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Completed</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                </tr></thead>
+                <tbody id="pr-completed-tbody" class="divide-y divide-gray-100"></tbody>
+            </table>
+        </div>
+        <div id="pr-completed-empty" class="hidden px-5 py-12 text-center text-gray-400">No completed purchases</div>
+    </div>
+</div>
+
+<!-- PR Detail Modal -->
+<div id="pr-detail-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50" style="display:none; align-items:center; justify-content:center;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto" style="margin:1rem;">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h2 class="text-lg font-bold text-gray-900">Purchase Request Detail</h2>
+            <button onclick="closePRDetailModal()" class="text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+        <div id="pr-detail-content" class="px-6 py-4 space-y-4">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- New PR Modal -->
+<div id="pr-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50" style="display:none; align-items:center; justify-content:center;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto" style="margin:1rem;">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h2 class="text-lg font-bold text-gray-900">New Procurement Request</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Must be linked to an approved budget</p>
+        </div>
+        <form id="pr-form" class="px-6 py-4 space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Select Budget <span class="text-red-500">*</span></label>
+                <select name="budget_id" id="pr-budget-select" required class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500">
+                    <option value="">Loading budgets...</option>
+                </select>
+                <p id="pr-budget-info" class="text-xs text-gray-500 mt-1"></p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Purpose <span class="text-red-500">*</span></label>
+                    <input name="purpose" required placeholder="What is this purchase for?" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Vendor <span class="text-gray-400 font-normal">(optional)</span></label>
+                    <input name="vendor_name" placeholder="Supplier/vendor name" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500">
+                </div>
+            </div>
+
+            <!-- Items -->
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <label class="text-sm font-medium text-gray-700">Items <span class="text-red-500">*</span></label>
+                    <button type="button" onclick="addPRItemRow()" class="text-xs text-royal-600 hover:text-royal-800 font-semibold">+ Add Item</button>
+                </div>
+                <div id="pr-items-container" class="space-y-2">
+                    <!-- Item rows added by JS -->
+                </div>
+                <p id="pr-items-total" class="text-right text-sm font-bold text-gray-700 mt-2">Total: TZS 0</p>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closePRModal()" class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl">Cancel</button>
+                <button type="submit" class="px-6 py-2.5 text-sm font-semibold text-white bg-royal-600 hover:bg-royal-700 rounded-xl shadow-sm">Submit Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Approve/Reject Modal -->
+<div id="pr-approve-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50" style="display:none; align-items:center; justify-content:center;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md" style="margin:1rem;">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h2 class="text-lg font-bold text-gray-900">Approve / Reject Request</h2>
+        </div>
+        <form id="pr-approve-form" class="px-6 py-4 space-y-4">
+            <input type="hidden" id="approve-pr-id">
+            <p id="approve-pr-label" class="text-sm font-medium text-gray-700"></p>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <textarea id="approve-pr-notes" rows="2" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm"></textarea>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="closePRApproveModal()" class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl">Cancel</button>
+                <button type="button" onclick="submitPRDecision('rejected')" class="px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl">Reject</button>
+                <button type="button" onclick="submitPRDecision('approved')" class="px-4 py-2.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-xl">Approve</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</div>
+
+<script>
+const BASE_URL = '<?= htmlspecialchars($B, ENT_QUOTES) ?>';
+const API = BASE_URL + '/api/v1';
+const CAN_CREATE   = <?= $canCreate   ? 'true' : 'false' ?>;
+const CAN_APPROVE  = <?= $canApprove  ? 'true' : 'false' ?>;
+const CAN_COMPLETE = <?= $canComplete ? 'true' : 'false' ?>;
+let allPRs = [];
+let activeBudgets = [];
+
+function fmt(n) { return 'TZS ' + Number(n || 0).toLocaleString('en-US', {minimumFractionDigits: 0}); }
+
+function showToast(msg, type) {
+    const div = document.createElement('div');
+    div.className = 'fixed top-4 right-4 z-[9999] px-5 py-3 rounded-xl text-sm font-semibold text-white shadow-lg ' + (type === 'success' ? 'bg-green-600' : 'bg-red-600');
+    div.textContent = msg;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+}
+
+// â”€â”€ Sub-tab switching â”€â”€
+document.querySelectorAll('.ptab').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.ptab').forEach(t => { t.classList.remove('ptab-active','border-royal-600','text-royal-700'); t.classList.add('border-transparent','text-gray-500'); });
+        btn.classList.add('ptab-active','border-royal-600','text-royal-700'); btn.classList.remove('border-transparent','text-gray-500');
+        document.querySelectorAll('.ptab-panel').forEach(p => p.classList.add('hidden'));
+        document.getElementById('ptab-' + btn.dataset.ptab).classList.remove('hidden');
+    });
+});
+
+const SC = {
+    draft:'bg-gray-100 text-gray-600', submitted:'bg-amber-100 text-amber-800', pending:'bg-amber-100 text-amber-800',
+    approved:'bg-green-100 text-green-800', rejected:'bg-red-100 text-red-800',
+    purchased:'bg-blue-100 text-blue-800', completed:'bg-purple-100 text-purple-700', cancelled:'bg-gray-200 text-gray-500'
+};
+
+// -- Load all data --
+async function loadPRData() {
+    try {
+        const [prRes, budRes] = await Promise.all([
+            fetch(API + '/procurement/requests'),
+            fetch(API + '/procurement/active-budgets')
+        ]);
+        if (!prRes.ok) throw new Error('Requests API error: ' + prRes.status);
+        if (!budRes.ok) throw new Error('Budgets API error: ' + budRes.status);
+        const prData  = await prRes.json();
+        const budData = await budRes.json();
+        allPRs = prData.data || [];
+        activeBudgets = budData.data || [];
+        renderAllRequests();
+        renderApproved();
+        renderCompleted();
+        populateBudgetSelect();
+    } catch (e) {
+        console.error('PR load failed:', e);
+        document.getElementById('pr-all-empty').textContent = 'Failed to load data: ' + e.message;
+        document.getElementById('pr-all-empty').classList.remove('hidden');
+    }
+}
+
+function renderAllRequests() {
+    const rows = allPRs.filter(r => !['completed','cancelled'].includes(r.status));
+    const tbody = document.getElementById('pr-all-tbody');
+    const empty = document.getElementById('pr-all-empty');
+    if (!rows.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    tbody.innerHTML = rows.map(r => {
+        let actions = '';
+        if (r.status === 'submitted' && CAN_APPROVE) {
+            actions += '<button onclick="openPRApproveModal(' + r.id + ')" class="px-2.5 py-1 text-xs bg-green-50 hover:bg-green-100 text-green-700 rounded-lg font-semibold">Review</button>';
+        }
+        if (r.status === 'approved' && CAN_COMPLETE) {
+            actions += '<button onclick="markAsPurchased(' + r.id + ')" class="px-2.5 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold">Mark Purchased</button>';
+        }
+        if (!['completed','cancelled','purchased'].includes(r.status) && CAN_CREATE) {
+            actions += '<button onclick="cancelPR(' + r.id + ')" class="px-2.5 py-1 text-xs text-red-500 hover:text-red-700 font-semibold">Cancel</button>';
+        }
+        actions += '<button onclick="viewPRDetail(' + r.id + ')" class="px-2.5 py-1 text-xs text-gray-500 hover:text-gray-700 font-semibold">View</button>';
+        return '<tr class="hover:bg-gray-50">' +
+            '<td class="px-4 py-3 text-xs font-mono text-royal-600 font-bold">' + r.request_no + '</td>' +
+            '<td class="px-4 py-3 text-sm text-gray-700">' + (r.budget_department || 'â€”') + ' <span class="text-xs text-gray-400">' + (r.budget_month || '') + '</span></td>' +
+            '<td class="px-4 py-3 text-sm text-gray-600 max-w-[200px] truncate">' + r.purpose + '</td>' +
+            '<td class="px-4 py-3 text-right font-semibold text-gray-900">' + fmt(r.items_total || r.estimated_cost) + '</td>' +
+            '<td class="px-4 py-3 text-xs text-gray-500">' + (r.item_count || 0) + ' items</td>' +
+            '<td class="px-4 py-3 text-xs text-gray-600">' + (r.requested_by_name || 'â€”') + '</td>' +
+            '<td class="px-4 py-3 text-xs text-gray-500">' + (r.requested_date || 'â€”') + '</td>' +
+            '<td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ' + (SC[r.status]||'') + '">' + r.status + '</span></td>' +
+            '<td class="px-4 py-3 text-center"><div class="flex items-center justify-center gap-1 flex-wrap">' + actions + '</div></td></tr>';
+    }).join('');
+}
+
+function renderApproved() {
+    const rows = allPRs.filter(r => r.status === 'approved' || r.status === 'purchased');
+    const tbody = document.getElementById('pr-approved-tbody');
+    const empty = document.getElementById('pr-approved-empty');
+    if (!rows.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    tbody.innerHTML = rows.map(r => {
+        let actions = '';
+        if (r.status === 'approved' && CAN_COMPLETE) {
+            actions += '<button onclick="markAsPurchased(' + r.id + ')" class="px-2.5 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold">Mark Purchased</button>';
+        }
+        if (r.status === 'purchased' && CAN_COMPLETE) {
+            actions += '<button onclick="completePR(' + r.id + ')" class="px-2.5 py-1 text-xs bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold">Complete</button>';
+        }
+        return '<tr class="hover:bg-gray-50">' +
+            '<td class="px-4 py-3 text-xs font-mono text-royal-600 font-bold">' + r.request_no + '</td>' +
+            '<td class="px-4 py-3 text-sm text-gray-700">' + (r.budget_department || 'â€”') + '</td>' +
+            '<td class="px-4 py-3 text-sm text-gray-600">' + r.purpose + '</td>' +
+            '<td class="px-4 py-3 text-right font-semibold text-gray-900">' + fmt(r.items_total || r.estimated_cost) + '</td>' +
+            '<td class="px-4 py-3 text-sm text-gray-600">' + (r.vendor_name || 'â€”') + '</td>' +
+            '<td class="px-4 py-3 text-xs text-gray-600">' + (r.approved_by_name || 'â€”') + '</td>' +
+            '<td class="px-4 py-3 text-center"><div class="flex items-center justify-center gap-1 flex-wrap">' + actions + '</div></td></tr>';
+    }).join('');
+}
+
+function renderCompleted() {
+    const rows = allPRs.filter(r => r.status === 'completed' || r.status === 'cancelled');
+    const tbody = document.getElementById('pr-completed-tbody');
+    const empty = document.getElementById('pr-completed-empty');
+    if (!rows.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    tbody.innerHTML = rows.map(r =>
+        '<tr class="hover:bg-gray-50 ' + (r.status === 'cancelled' ? 'opacity-60' : '') + '">' +
+        '<td class="px-4 py-3 text-xs font-mono text-gray-600">' + r.request_no + '</td>' +
+        '<td class="px-4 py-3 text-sm text-gray-700">' + (r.budget_department || 'â€”') + '</td>' +
+        '<td class="px-4 py-3 text-sm text-gray-600">' + r.purpose + '</td>' +
+        '<td class="px-4 py-3 text-right font-semibold text-gray-900">' + fmt(r.items_total || r.estimated_cost) + '</td>' +
+        '<td class="px-4 py-3 text-xs text-gray-500">' + (r.completed_at ? r.completed_at.substring(0,10) : 'â€”') + '</td>' +
+        '<td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ' + (SC[r.status]||'') + '">' + r.status + '</span></td></tr>'
+    ).join('');
+}
+
+// â”€â”€ Budget selector â”€â”€
+function populateBudgetSelect() {
+    const sel = document.getElementById('pr-budget-select');
+    sel.innerHTML = '<option value="">â€” Select an approved budget â€”</option>';
+    activeBudgets.forEach(b => {
+        const avail = parseFloat(b.available) || 0;
+        sel.innerHTML += '<option value="' + b.id + '">' + b.department + ' â€” ' + b.fiscal_month +
+            (b.event_title ? ' (' + b.event_title + ')' : '') +
+            ' | Available: ' + fmt(avail) + '</option>';
+    });
+    sel.addEventListener('change', function() {
+        const b = activeBudgets.find(x => x.id == this.value);
+        const info = document.getElementById('pr-budget-info');
+        if (b) {
+            info.innerHTML = '<b>Approved:</b> ' + fmt(b.planned_amount) + ' | <b>Spent:</b> ' + fmt(b.actual_amount) + ' | <b>Reserved:</b> ' + fmt(b.reserved_amount) + ' | <b>Available:</b> ' + fmt(b.available);
+        } else { info.innerHTML = ''; }
+    });
+}
+
+// â”€â”€ PR Items â”€â”€
+let prItemIndex = 0;
+function addPRItemRow() {
+    const idx = prItemIndex++;
+    const row = document.createElement('div');
+    row.className = 'grid grid-cols-12 gap-2 pr-item-row';
+    row.dataset.idx = idx;
+    row.innerHTML =
+        '<input name="items[' + idx + '][item_name]" placeholder="Item name" required class="col-span-5 border border-gray-300 rounded-lg px-2 py-1.5 text-sm">' +
+        '<input name="items[' + idx + '][quantity]" type="number" step="1" min="1" value="1" required class="col-span-2 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-right pr-item-qty" onchange="updatePRItemsTotal()">' +
+        '<input name="items[' + idx + '][estimated_unit_cost]" type="number" step="1" min="0" placeholder="Unit cost" required class="col-span-3 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-right pr-item-cost" onchange="updatePRItemsTotal()">' +
+        '<button type="button" onclick="this.closest(\'.pr-item-row\').remove();updatePRItemsTotal()" class="col-span-2 text-xs text-red-500 hover:text-red-700 font-semibold">Remove</button>';
+    document.getElementById('pr-items-container').appendChild(row);
+    updatePRItemsTotal();
+}
+
+function updatePRItemsTotal() {
+    let total = 0;
+    document.querySelectorAll('.pr-item-row').forEach(row => {
+        const qty = parseFloat(row.querySelector('.pr-item-qty')?.value) || 0;
+        const cost = parseFloat(row.querySelector('.pr-item-cost')?.value) || 0;
+        total += qty * cost;
+    });
+    document.getElementById('pr-items-total').textContent = 'Total: ' + fmt(total);
+}
+
+// â”€â”€ Modals â”€â”€
+function openNewPRModal() {
+    const m = document.getElementById('pr-modal');
+    if (m.parentElement !== document.body) document.body.appendChild(m);
+    m.style.display = 'flex';
+    addPRItemRow();
+}
+function closePRModal() {
+    document.getElementById('pr-modal').style.display = 'none';
+    document.getElementById('pr-form').reset();
+    document.getElementById('pr-items-container').innerHTML = '';
+    prItemIndex = 0;
+    updatePRItemsTotal();
+}
+function closePRDetailModal() { document.getElementById('pr-detail-modal').style.display = 'none'; }
+function closePRApproveModal() { document.getElementById('pr-approve-modal').style.display = 'none'; }
+
+// â”€â”€ Submit PR â”€â”€
+document.getElementById('pr-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fd = new FormData(this);
+    const items = [];
+    document.querySelectorAll('.pr-item-row').forEach(row => {
+        const idx = row.dataset.idx;
+        items.push({
+            item_name: fd.get('items[' + idx + '][item_name]'),
+            quantity: fd.get('items[' + idx + '][quantity]'),
+            estimated_unit_cost: fd.get('items[' + idx + '][estimated_unit_cost]'),
+        });
+    });
+    const payload = {
+        budget_id: fd.get('budget_id'),
+        purpose: fd.get('purpose'),
+        vendor_name: fd.get('vendor_name'),
+        items: items
+    };
+    try {
+        const res = await fetch(API + '/procurement/requests', {
+            method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'Failed');
+        showToast('Procurement request submitted', 'success');
+        closePRModal();
+        loadPRData();
+    } catch (err) { showToast(err.message, 'error'); }
+});
+
+// â”€â”€ Approve/Reject â”€â”€
+function openPRApproveModal(id) {
+    const pr = allPRs.find(r => r.id == id);
+    if (!pr) return;
+    document.getElementById('approve-pr-id').value = id;
+    document.getElementById('approve-pr-label').textContent = pr.request_no + ' â€” ' + pr.purpose + ' (' + fmt(pr.items_total || pr.estimated_cost) + ')';
+    document.getElementById('approve-pr-notes').value = '';
+    const m = document.getElementById('pr-approve-modal');
+    if (m.parentElement !== document.body) document.body.appendChild(m);
+    m.style.display = 'flex';
+}
+
+async function submitPRDecision(decision) {
+    const id = document.getElementById('approve-pr-id').value;
+    const notes = document.getElementById('approve-pr-notes').value;
+    try {
+        const res = await fetch(API + '/procurement/requests/' + id + '/approve', {
+            method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ decision, notes })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'Failed');
+        showToast('Request ' + decision, 'success');
+        closePRApproveModal();
+        loadPRData();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+// â”€â”€ Mark Purchased â”€â”€
+async function markAsPurchased(id) {
+    if (!confirm('Mark this request as purchased? This will convert costs to actual budget expenses.')) return;
+    try {
+        const res = await fetch(API + '/procurement/requests/' + id + '/purchase', {
+            method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({})
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'Failed');
+        showToast('Marked as purchased â€” expenses recorded', 'success');
+        loadPRData();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+// â”€â”€ Complete â”€â”€
+async function completePR(id) {
+    if (!confirm('Mark this procurement as completed?')) return;
+    try {
+        const res = await fetch(API + '/procurement/requests/' + id + '/complete', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'Failed');
+        showToast('Procurement completed', 'success');
+        loadPRData();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+// â”€â”€ Cancel â”€â”€
+async function cancelPR(id) {
+    if (!confirm('Cancel this procurement request?')) return;
+    try {
+        const res = await fetch(API + '/procurement/requests/' + id + '/cancel', {
+            method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ reason: 'Cancelled by user' })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'Failed');
+        showToast('Request cancelled', 'success');
+        loadPRData();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+// -- View Detail --
+async function viewPRDetail(id) {
+    try {
+        const res = await fetch(API + '/procurement/requests/' + id);
+        const data = await res.json();
+        if (!data.success) return;
+        const pr = data.data;
+        const items = pr.items || [];
+        const history = pr.approval_history || [];
+
+        let html = '<div class="grid grid-cols-2 gap-4 text-sm">'
+            + '<div><b>Request #:</b> ' + pr.request_no + '</div>'
+            + '<div><b>Status:</b> <span class="px-2 py-0.5 rounded-full text-xs font-semibold ' + (SC[pr.status]||'') + '">' + pr.status + '</span></div>'
+            + '<div><b>Budget:</b> ' + (pr.budget_department || '-') + ' - ' + (pr.budget_month || '') + '</div>'
+            + '<div><b>Purpose:</b> ' + pr.purpose + '</div>'
+            + '<div><b>Vendor:</b> ' + (pr.vendor_name || '-') + '</div>'
+            + '<div><b>Requested By:</b> ' + (pr.requested_by_name || '-') + '</div>'
+            + '<div><b>Total Cost:</b> ' + fmt(pr.estimated_cost) + '</div>'
+            + '</div>';
+
+        if (items.length) {
+            html += '<h3 class="font-semibold text-gray-800 mt-4 mb-2">Line Items</h3>'
+                + '<table class="w-full text-sm border border-gray-100 rounded-xl overflow-hidden">'
+                + '<thead class="bg-gray-50"><tr>'
+                + '<th class="px-3 py-2 text-left text-xs font-semibold text-gray-600">Item</th>'
+                + '<th class="px-3 py-2 text-right text-xs font-semibold text-gray-600">Qty</th>'
+                + '<th class="px-3 py-2 text-right text-xs font-semibold text-gray-600">Unit Cost</th>'
+                + '<th class="px-3 py-2 text-right text-xs font-semibold text-gray-600">Total</th>'
+                + '</tr></thead><tbody class="divide-y divide-gray-100">';
+            items.forEach(function(i) {
+                html += '<tr>'
+                    + '<td class="px-3 py-2">' + (i.item_name || '') + '</td>'
+                    + '<td class="px-3 py-2 text-right">' + (i.quantity || 0) + '</td>'
+                    + '<td class="px-3 py-2 text-right">' + fmt(i.estimated_unit_cost) + '</td>'
+                    + '<td class="px-3 py-2 text-right font-semibold">' + fmt(i.line_total) + '</td>'
+                    + '</tr>';
+            });
+            html += '</tbody></table>';
+        }
+
+        if (history.length) {
+            html += '<h3 class="font-semibold text-gray-800 mt-4 mb-2">Approval Trail</h3><div class="space-y-2">';
+            history.forEach(function(h) {
+                var c = h.action === 'approved' ? 'text-green-700 bg-green-50'
+                      : h.action === 'rejected' ? 'text-red-700 bg-red-50'
+                      : 'text-amber-700 bg-amber-50';
+                html += '<div class="flex items-center gap-2 text-xs p-2 rounded-lg ' + c + '">'
+                    + '<b>' + (h.actor_name || 'System') + '</b> '
+                    + h.action
+                    + ' <span class="text-gray-400">@ ' + (h.acted_at || '') + '</span>'
+                    + (h.notes ? ' - ' + h.notes : '')
+                    + '</div>';
+            });
+            html += '</div>';
+        }
+
+        document.getElementById('pr-detail-content').innerHTML = html;
+        document.getElementById('pr-detail-modal').style.display = 'flex';
+    } catch (e) { console.error('viewPRDetail error:', e); }
+}
+
+// -- Init --
+loadPRData();
+</script>
+
+<style>
+.procurement-module .ptab-active { border-color: #3344a5; color: #3344a5; }
+</style>
